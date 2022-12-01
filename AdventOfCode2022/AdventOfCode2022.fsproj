@@ -9,9 +9,9 @@
         <Content Include="Days\*.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <Compile Include="Input.fs"/>
-        <Compile Include="Day*.fs"/>
-        <Compile Include="Program.fs"/>
+        <Compile Include="Helpers.fs" />
+        <Compile Include="Day*.fs" />
+        <Compile Include="Program.fs" />
     </ItemGroup>
 
 </Project>
