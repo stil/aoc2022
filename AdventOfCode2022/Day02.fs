@@ -49,7 +49,7 @@ let getWeaponForOutcome opp outcome =
     match outcome with
     | Lose -> opp |> getBetterWeapon |> getBetterWeapon
     | Draw -> opp
-    | Win -> getBetterWeapon opp
+    | Win -> opp |> getBetterWeapon
 
 let getOutcome opp me =
     if opp = me then Draw
