@@ -1,6 +1,6 @@
 module Day02
 
-type Shape =
+type Weapon =
     | Rock
     | Scissors
     | Paper
@@ -10,17 +10,13 @@ type Outcome =
     | Draw
     | Win
 
-let mapWeaponABC symbol =
+let mapWeapon symbol =
     match symbol with
-    | 'A' -> Rock
-    | 'B' -> Paper
-    | 'C' -> Scissors
-    | _ -> failwith "Unknown weapon."
-
-let mapWeaponXYZ symbol =
-    match symbol with
+    | 'A'
     | 'X' -> Rock
+    | 'B'
     | 'Y' -> Paper
+    | 'C'
     | 'Z' -> Scissors
     | _ -> failwith "Unknown weapon."
 
@@ -31,22 +27,39 @@ let mapOutcome symbol =
     | 'Z' -> Win
     | _ -> failwith "Unknown outcome."
 
+let scoreOutcome outcome =
+    match outcome with
+    | Lose -> 0
+    | Draw -> 3
+    | Win -> 6
+
+let scoreWeapon weapon =
+    match weapon with
+    | Rock -> 1
+    | Paper -> 2
+    | Scissors -> 3
+
+let getBetterWeapon weapon =
+    match weapon with
+    | Rock -> Paper
+    | Paper -> Scissors
+    | Scissors -> Rock
+
+let getWeaponForOutcome opp outcome =
+    match outcome with
+    | Lose -> opp |> getBetterWeapon |> getBetterWeapon
+    | Draw -> opp
+    | Win -> getBetterWeapon opp
+
+let getOutcome opp me =
+    if opp = me then Draw
+    elif me = (getBetterWeapon opp) then Win
+    else Lose
+
 let sumScore rounds =
     rounds
-    |> Seq.map (fun e ->
-        match e with
-        // Lose
-        | Paper, Rock -> 0 + 1
-        | Scissors, Paper -> 0 + 2
-        | Rock, Scissors -> 0 + 3
-        // Draw
-        | Rock, Rock -> 3 + 1
-        | Paper, Paper -> 3 + 2
-        | Scissors, Scissors -> 3 + 3
-        // Win
-        | Scissors, Rock -> 6 + 1
-        | Rock, Paper -> 6 + 2
-        | Paper, Scissors -> 6 + 3)
+    |> Seq.map (fun (opp, me) -> (opp, me) ||> getOutcome |> scoreOutcome, me |> scoreWeapon)
+    |> Seq.map (fun (score, extraPoints) -> score + extraPoints)
     |> Seq.sum
 
 let input =
@@ -56,31 +69,15 @@ let input =
 
 let part1 =
     let result =
-        input
-        |> Seq.map (fun (opp, me) -> mapWeaponABC opp, mapWeaponXYZ me)
-        |> sumScore
+        input |> Seq.map (fun (opp, me) -> mapWeapon opp, mapWeapon me) |> sumScore
 
     printfn $"Result: %i{result}."
 
 let part2 =
     let result =
         input
-        |> Seq.map (fun (opp, me) -> mapWeaponABC opp, mapOutcome me)
-        |> Seq.map (fun e ->
-            (fst e,
-             match e with
-             // Lose
-             | Paper, Lose -> Rock
-             | Scissors, Lose -> Paper
-             | Rock, Lose -> Scissors
-             // Draw
-             | Rock, Draw -> Rock
-             | Paper, Draw -> Paper
-             | Scissors, Draw -> Scissors
-             // Win
-             | Scissors, Win -> Rock
-             | Rock, Win -> Paper
-             | Paper, Win -> Scissors))
+        |> Seq.map (fun (opp, me) -> mapWeapon opp, mapOutcome me)
+        |> Seq.map (fun e -> (fst e, e ||> getWeaponForOutcome))
         |> sumScore
 
     printfn $"Result: %i{result}."
