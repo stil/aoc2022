@@ -1,9 +1,7 @@
 module Day03
 
-open System
-
 let getItemPriority symbol =
-    if Char.IsLower symbol then
+    if System.Char.IsLower symbol then
         int symbol - int 'a' + 1
     else
         int symbol - int 'A' + 27
@@ -16,7 +14,7 @@ let part1 =
         |> Seq.map Seq.head
         |> Seq.sumBy getItemPriority
 
-    printfn $"Result: %i{result}."
+    printfn $"Part 1: %i{result}"
 
 let part2 =
     let result =
@@ -27,4 +25,4 @@ let part2 =
         |> Seq.map Seq.head
         |> Seq.sumBy getItemPriority
 
-    printfn $"Result: %i{result}."
+    printfn $"Part 2: %i{result}"
