@@ -14,8 +14,7 @@ let part1 =
         |> Seq.map (fun e -> e |> Seq.chunkBySize (e.Length / 2) |> Seq.map Set)
         |> Seq.map Set.intersectMany
         |> Seq.map Seq.head
-        |> Seq.map getItemPriority
-        |> Seq.sum
+        |> Seq.sumBy getItemPriority
 
     printfn $"Result: %i{result}."
 
@@ -26,7 +25,6 @@ let part2 =
         |> Seq.map (Seq.map Set)
         |> Seq.map Set.intersectMany
         |> Seq.map Seq.head
-        |> Seq.map getItemPriority
-        |> Seq.sum
+        |> Seq.sumBy getItemPriority
 
     printfn $"Result: %i{result}."
