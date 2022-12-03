@@ -7,22 +7,17 @@ let getItemPriority symbol =
         int symbol - int 'A' + 27
 
 let part1 =
-    let result =
-        Helpers.readInput 3
-        |> Seq.map (fun e -> e |> Seq.chunkBySize (e.Length / 2) |> Seq.map Set)
-        |> Seq.map Set.intersectMany
-        |> Seq.map Seq.head
-        |> Seq.sumBy getItemPriority
+    Helpers.readInput 3
+    |> Seq.map (fun e -> e |> Seq.chunkBySize (e.Length / 2) |> Seq.map Set)
+    |> Seq.map Set.intersectMany
+    |> Seq.map Seq.head
+    |> Seq.sumBy getItemPriority
 
-    printfn $"Part 1: %i{result}"
 
 let part2 =
-    let result =
-        Helpers.readInput 3
-        |> Seq.chunkBySize 3
-        |> Seq.map (Seq.map Set)
-        |> Seq.map Set.intersectMany
-        |> Seq.map Seq.head
-        |> Seq.sumBy getItemPriority
-
-    printfn $"Part 2: %i{result}"
+    Helpers.readInput 3
+    |> Seq.chunkBySize 3
+    |> Seq.map (Seq.map Set)
+    |> Seq.map Set.intersectMany
+    |> Seq.map Seq.head
+    |> Seq.sumBy getItemPriority
