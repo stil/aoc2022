@@ -13,7 +13,6 @@ let part1 =
     |> Seq.map Seq.head
     |> Seq.sumBy getItemPriority
 
-
 let part2 =
     Helpers.readInput 3
     |> Seq.chunkBySize 3
