@@ -12,8 +12,7 @@ let assignmentPairs =
     Helpers.readInput 4
     |> Seq.map parsePair
     |> Seq.map (mapPair parseRange)
-    |> Seq.map (mapPair (fun (min, max) -> seq { min..max }))
-    |> Seq.map (mapPair Set)
+    |> Seq.map (mapPair (fun (min, max) -> Set { min..max }))
 
 let part1 =
     assignmentPairs
