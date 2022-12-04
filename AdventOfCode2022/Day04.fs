@@ -4,15 +4,16 @@ let parseTuple (str: string) (separator: char) mapFn =
     let parts = str.Split(separator) |> Seq.map mapFn |> Seq.toArray
     (parts[0], parts[1])
 
+let mapPair fn (a, b) = (fn a, fn b)
 let parsePair pair = parseTuple pair ',' id
 let parseRange range = parseTuple range '-' int
 
 let assignmentPairs =
     Helpers.readInput 4
     |> Seq.map parsePair
-    |> Seq.map (fun (elf1, elf2) -> (parseRange elf1, parseRange elf2))
-    |> Seq.map (fun (elf1, elf2) -> (seq { fst elf1 .. snd elf1 }, seq { fst elf2 .. snd elf2 }))
-    |> Seq.map (fun (elf1, elf2) -> (Set elf1, Set elf2))
+    |> Seq.map (mapPair parseRange)
+    |> Seq.map (mapPair (fun (min, max) -> seq { min..max }))
+    |> Seq.map (mapPair Set)
 
 let part1 =
     assignmentPairs
