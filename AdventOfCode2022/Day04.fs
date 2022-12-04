@@ -1,12 +1,11 @@
 module Day04
 
-let parsePair (pair: string) =
-    let parts = pair.Split(',') |> Seq.toArray
+let parseTuple (str: string) (separator: char) mapFn =
+    let parts = str.Split(separator) |> Seq.map mapFn |> Seq.toArray
     (parts[0], parts[1])
 
-let parseRange (range: string) =
-    let parts = range.Split('-') |> Seq.map int |> Seq.toArray
-    (parts[0], parts[1])
+let parsePair pair = parseTuple pair ',' id
+let parseRange range = parseTuple range '-' int
 
 let assignmentPairs =
     Helpers.readInput 4
