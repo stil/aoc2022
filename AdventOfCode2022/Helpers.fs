@@ -1,15 +1,33 @@
 module Helpers
 
-let readInput (day: int) =
-    let readLines filePath = System.IO.File.ReadLines(filePath)
+open System.IO
+open System.Reflection
 
-    let num = sprintf "%02i" day
+let assembly = Assembly.GetExecutingAssembly()
 
-    readLines $"Input\\Day{num}.txt"
+let dayFromResourceName (resName: string) =
+    let str = resName.Replace("AdventOfCode2022.Input.Day", "").Replace(".txt", "")
+    int str
 
-let readInputFull (day: int) =
-    let readLines filePath = System.IO.File.ReadAllText(filePath)
+let inputs =
+    assembly.GetManifestResourceNames()
+    |> Seq.filter (fun res -> res.Contains("Day") && res.EndsWith(".txt"))
+    |> Seq.map (fun res ->
+        (res |> dayFromResourceName,
+         let stream = assembly.GetManifestResourceStream(res)
+         let streamReader = new StreamReader(stream)
+         streamReader.ReadToEnd()))
+    |> dict
 
-    let num = sprintf "%02i" day
+let rec readlines (stream: StreamReader) =
+    seq {
+        let line = stream.ReadLine()
 
-    readLines $"Input\\Day{num}.txt"
+        if line <> null then
+            yield line
+            yield! readlines (stream)
+    }
+
+let readInput (day: int) = inputs[ day ].Split("\r\n")
+
+let readInputFull (day: int) = inputs[day]

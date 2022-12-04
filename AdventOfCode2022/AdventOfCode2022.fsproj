@@ -2,16 +2,18 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="Input\*.txt">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Compile Include="Helpers.fs" />
-        <Compile Include="Day*.fs" />
-        <Compile Include="Program.fs" />
+        <EmbeddedResource Include="Input\*.txt"/>
+        <Compile Include="Helpers.fs"/>
+        <Compile Include="Day*.fs"/>
+        <Compile Include="Program.fs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" Version="0.13.2"/>
     </ItemGroup>
 
 </Project>
