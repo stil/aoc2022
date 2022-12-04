@@ -21,5 +21,5 @@ let part1 =
 
 let part2 =
     assignmentPairs
-    |> Seq.filter (fun elfs -> elfs ||> Set.intersect |> Set.count > 0)
+    |> Seq.filter (fun elfs -> elfs ||> Set.intersect |> Set.isEmpty |> not)
     |> Seq.length
