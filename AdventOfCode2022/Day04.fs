@@ -16,12 +16,10 @@ let assignmentPairs =
 
 let part1 =
     assignmentPairs
-    |> Seq.map (fun (elf1, elf2) -> (Set.difference elf1 elf2, Set.difference elf2 elf1))
-    |> Seq.filter (fun (diff1, diff2) -> diff1.Count = 0 || diff2.Count = 0)
+    |> Seq.filter (fun (elf1, elf2) -> Set.isSubset elf1 elf2 || Set.isSubset elf2 elf1)
     |> Seq.length
 
 let part2 =
     assignmentPairs
-    |> Seq.map (fun (elf1, elf2) -> Set.intersect elf1 elf2)
-    |> Seq.filter (fun intersect -> intersect.Count > 0)
+    |> Seq.filter (fun elfs -> elfs ||> Set.intersect |> Set.count > 0)
     |> Seq.length
