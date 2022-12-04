@@ -16,7 +16,7 @@ let assignmentPairs =
 
 let part1 =
     assignmentPairs
-    |> Seq.filter (fun (elf1, elf2) -> Set.isSubset elf1 elf2 || Set.isSubset elf2 elf1)
+    |> Seq.filter (fun elfs -> elfs ||> Set.isSubset || elfs ||> Set.isSuperset)
     |> Seq.length
 
 let part2 =
