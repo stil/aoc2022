@@ -1,7 +1,7 @@
 module Day05
 
 let split (delim: string) (str: string) = str.Split(delim)
-let replace (oldValue: string) (newValue: string) (str: string) = str.Replace(oldValue, newValue)
+let remove (oldValue: string) (str: string) = str.Replace(oldValue, "")
 let input = Helpers.readInput 5
 
 let initialCrateStacks =
@@ -15,8 +15,7 @@ let topCrates collectFn =
     input
     |> Seq.skipWhile (fun line -> line.Length > 0)
     |> Seq.skip 1
-    |> Seq.map (replace "move " "" >> replace " to " " " >> replace " from " " ")
-    |> Seq.map (split " " >> Array.map int)
+    |> Seq.map (remove "move " >> remove "from " >> remove "to " >> split " " >> Array.map int)
     |> Seq.map (fun parts -> (parts[0], parts[1], parts[2]))
     |> Seq.collect collectFn
     |> Seq.fold
