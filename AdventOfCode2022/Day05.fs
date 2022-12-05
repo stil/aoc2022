@@ -1,22 +1,21 @@
 module Day05
 
-let partial = Helpers.readInputFull 5
 let split (delim: string) (str: string) = str.Split(delim)
 let replace (oldValue: string) (newValue: string) (str: string) = str.Replace(oldValue, newValue)
-let input = partial |> split "\r\n\r\n" |> Seq.map (split "\r\n") |> Seq.toList
 let concat (chars: char seq) = System.String.Concat(chars)
+let input = Helpers.readInput 5
 
 let initialCrateStacks =
     [ 0..8 ]
-    |> Seq.map (fun col ->
+    |> List.map (fun col ->
         [ 0..7 ]
-        |> Seq.map (fun row -> (input[0][row])[col * 4 + 1])
-        |> Seq.filter (fun c -> c <> ' ')
-        |> Seq.toList)
-    |> Seq.toList
+        |> List.map (fun row -> input[row][col * 4 + 1])
+        |> List.filter (fun c -> c <> ' '))
 
 let topCrates collectFn =
-    input[1]
+    input
+    |> Seq.skipWhile (fun line -> line.Length > 0)
+    |> Seq.skip 1
     |> Seq.map (replace "move " "" >> replace " to " " " >> replace " from " " ")
     |> Seq.map (split " " >> Array.map int)
     |> Seq.map (fun parts -> (parts[0], parts[1], parts[2]))

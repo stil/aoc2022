@@ -1,7 +1,7 @@
 module Helpers
 
 let readInput (day: int) =
-    let readLines filePath = System.IO.File.ReadLines(filePath)
+    let readLines filePath = System.IO.File.ReadLines(filePath) |> Seq.toList
 
     let num = sprintf "%02i" day
 
