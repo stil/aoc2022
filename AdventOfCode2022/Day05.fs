@@ -1,59 +1,50 @@
 module Day05
 
 let partial = Helpers.readInputFull 5
-
-let parts =
-    partial.Split("\r\n\r\n") |> Seq.map (fun p -> p.Split("\r\n")) |> Seq.toArray
+let split (delim: string) (str: string) = str.Split(delim)
+let replace (oldValue: string) (newValue: string) (str: string) = str.Replace(oldValue, newValue)
+let parts = partial |> split "\r\n\r\n" |> Seq.map (split "\r\n") |> Seq.toList
+let concat (chars: char[]) = System.String.Concat(chars)
 
 let stackInput = parts[0]
 
-let initialStacks () =
+let initialCrateStacks =
     [ 0..8 ]
     |> Seq.map (fun col ->
         [ 0..7 ]
         |> Seq.map (fun row -> stackInput[row][col * 4 + 1])
-        |> Seq.filter (fun c -> not (c = ' '))
+        |> Seq.filter (fun c -> c <> ' ')
         |> Seq.toList)
-    |> Seq.toArray
+    |> Seq.toList
 
 
 let instructions =
     parts[1]
-    |> Seq.map (fun instr ->
-        instr
-            .Replace("move ", "")
-            .Replace(" from ", " ")
-            .Replace(" to ", " ")
-            .Split(' '))
-    |> Seq.map (fun parts -> parts |> Seq.map int |> Seq.toArray)
+    |> Seq.map (replace "move " "" >> replace " to " " " >> replace " from " " ")
+    |> Seq.map (split " " >> Seq.map int >> Seq.toList)
     |> Seq.map (fun parts -> (parts[0], parts[1], parts[2]))
-    |> Seq.toArray
+    |> Seq.toList
 
-let finalStacks collectFn =
+let crateStacks collectFn =
     instructions
     |> Seq.collect collectFn
     |> Seq.fold
-        (fun (previousStacks: char list[]) (howMany, moveFrom, moveTo) ->
-
-
-
+        (fun (previousStacks: char list list) (howMany, moveFrom, moveTo) ->
             let slice = previousStacks[moveFrom - 1][0 .. (howMany - 1)]
-            let newTargetStack = [ slice; previousStacks[moveTo - 1] ] |> List.concat
+            let newTargetStack = slice @ previousStacks[moveTo - 1]
             let newSourceStack = previousStacks[moveFrom - 1] |> List.removeManyAt 0 howMany
-            Array.set previousStacks (moveTo - 1) newTargetStack
-            Array.set previousStacks (moveFrom - 1) newSourceStack
-            previousStacks)
-        (initialStacks ())
+
+            previousStacks
+            |> List.updateAt (moveTo - 1) newTargetStack
+            |> List.updateAt (moveFrom - 1) newSourceStack)
+        initialCrateStacks
     |> Seq.map (fun stack -> stack |> Seq.head)
     |> Seq.toArray
 
 let part1 =
-    let resultStacks =
-        finalStacks (fun (howMany, moveFrom, moveTo) -> [ 1..howMany ] |> Seq.map (fun _ -> (1, moveFrom, moveTo)))
+    let collectFn =
+        (fun (howMany, moveFrom, moveTo) -> [ 1..howMany ] |> Seq.map (fun _ -> (1, moveFrom, moveTo)))
 
-    System.String.Concat(resultStacks)
+    crateStacks collectFn |> concat
 
-let part2 =
-    let resultStacks = finalStacks (fun instr -> [ instr ])
-
-    System.String.Concat(resultStacks)
+let part2 = crateStacks (fun instr -> [ instr ]) |> concat
