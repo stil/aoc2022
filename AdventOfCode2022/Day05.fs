@@ -6,10 +6,10 @@ let concat (chars: char seq) = System.String.Concat(chars)
 let input = Helpers.readInput 5
 
 let initialCrateStacks =
-    [ 0..8 ]
+    [ 1..9 ]
     |> List.map (fun col ->
-        [ 0..7 ]
-        |> List.map (fun row -> input[row][col * 4 + 1])
+        [ 1..8 ]
+        |> List.map (fun row -> input[row - 1][col * 4 - 3])
         |> List.filter (fun c -> c <> ' '))
 
 let topCrates collectFn =
