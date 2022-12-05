@@ -2,7 +2,6 @@ module Day05
 
 let split (delim: string) (str: string) = str.Split(delim)
 let replace (oldValue: string) (newValue: string) (str: string) = str.Replace(oldValue, newValue)
-let concat (chars: char seq) = System.String.Concat(chars)
 let input = Helpers.readInput 5
 
 let initialCrateStacks =
@@ -28,10 +27,10 @@ let topCrates collectFn =
                 (previousStacks[moveFrom - 1][0 .. (howMany - 1)] @ previousStacks[moveTo - 1])
             |> List.updateAt (moveFrom - 1) (previousStacks[moveFrom - 1][howMany..]))
         initialCrateStacks
-    |> Seq.map Seq.head
+    |> Seq.map (Seq.head >> string)
+    |> String.concat ""
 
 let part1 =
     topCrates (fun (howMany, moveFrom, moveTo) -> Seq.init howMany (fun _ -> (1, moveFrom, moveTo)))
-    |> concat
 
-let part2 = topCrates (fun instr -> [ instr ]) |> concat
+let part2 = topCrates (fun instr -> [ instr ])
