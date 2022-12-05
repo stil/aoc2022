@@ -15,25 +15,19 @@ let initialCrateStacks =
         |> Seq.toList)
     |> Seq.toList
 
-let instructions =
+let topCrates collectFn =
     input[1]
     |> Seq.map (replace "move " "" >> replace " to " " " >> replace " from " " ")
     |> Seq.map (split " " >> Array.map int)
     |> Seq.map (fun parts -> (parts[0], parts[1], parts[2]))
-    |> Seq.toList
-
-let topCrates collectFn =
-    instructions
     |> Seq.collect collectFn
     |> Seq.fold
         (fun (previousStacks: char list list) (howMany, moveFrom, moveTo) ->
-            let slice = previousStacks[moveFrom - 1][0 .. (howMany - 1)]
-            let newTargetStack = slice @ previousStacks[moveTo - 1]
-            let newSourceStack = previousStacks[moveFrom - 1] |> List.removeManyAt 0 howMany
-
             previousStacks
-            |> List.updateAt (moveTo - 1) newTargetStack
-            |> List.updateAt (moveFrom - 1) newSourceStack)
+            |> List.updateAt
+                (moveTo - 1)
+                (previousStacks[moveFrom - 1][0 .. (howMany - 1)] @ previousStacks[moveTo - 1])
+            |> List.updateAt (moveFrom - 1) (previousStacks[moveFrom - 1][howMany..]))
         initialCrateStacks
     |> Seq.map Seq.head
 
