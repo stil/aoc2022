@@ -29,7 +29,6 @@ let fileSystem =
              |> Seq.takeWhile (fun line -> line |> isCommand |> not)
              |> Seq.toList))
 
-
     let cd (destination: string) (cwd: DirectoryInfo) =
         if destination = ".." then
             cwd.parent.Value
@@ -65,13 +64,10 @@ let fileSystem =
     let consumeCommand (line: string) (output: string list) (currentCwd: DirectoryInfo) =
         let parts = line.Split(' ')
 
-        let nextCwd =
-            match parts[1] with
-            | "cd" -> cd parts[2] currentCwd
-            | "ls" -> ls output currentCwd
-            | _ -> failwith "Unsupported command."
-
-        nextCwd
+        match parts[1] with
+        | "cd" -> cd parts[2] currentCwd
+        | "ls" -> ls output currentCwd
+        | _ -> failwith "Unsupported command."
 
     let root =
         { name = "/"
