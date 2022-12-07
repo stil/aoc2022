@@ -30,9 +30,9 @@ let fileSystem =
              |> Seq.toList))
 
     let cd (destination: string) (cwd: DirectoryInfo) =
-        if destination = ".." then
-            cwd.parent.Value
-        else
+        match destination with
+        | ".." -> cwd.parent.Value
+        | _ ->
             cwd.subitems
             |> Seq.choose (fun item ->
                 match item with
@@ -87,15 +87,12 @@ let rec descendants (node: FileSystemItem) =
     | Directory dir -> (Directory dir) :: (dir.subitems |> List.collect descendants)
 
 let sumSize (node: FileSystemItem) =
-    match node with
-    | Directory dir ->
-        descendants (Directory dir)
-        |> Seq.choose (fun item ->
-            match item with
-            | File file -> Some(file)
-            | _ -> None)
-        |> Seq.sumBy (fun file -> file.fileSize)
-    | File file -> file.fileSize
+    descendants node
+    |> Seq.choose (fun item ->
+        match item with
+        | File file -> Some(file)
+        | _ -> None)
+    |> Seq.sumBy (fun file -> file.fileSize)
 
 let directorySizes =
     descendants fileSystem
@@ -103,9 +100,7 @@ let directorySizes =
         match item with
         | Directory info -> Some(info)
         | _ -> None)
-    |> Seq.map (fun dir -> (dir, sumSize (Directory dir)))
-    |> Seq.map snd
-    |> Seq.toList
+    |> Seq.map (fun dir -> sumSize (Directory dir))
 
 let part1 = directorySizes |> Seq.filter (fun size -> size <= 100000UL) |> Seq.sum
 
