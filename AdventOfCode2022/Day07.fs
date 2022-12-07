@@ -73,7 +73,7 @@ let fileSystem =
              |> Seq.takeWhile (fun line -> line |> isCommand |> not)
              |> Seq.toList))
 
-    let consumeCommand (line: string) (output: string list) (currentCwd: DirectoryInfo) =
+    let consumeCommand line output currentCwd =
         match getWord 1 line with
         | "cd" -> cd (getWord 2 line) currentCwd
         | "ls" ->
@@ -89,12 +89,12 @@ let fileSystem =
 
     Directory root
 
-let rec descendants (node: FileSystemItem) =
+let rec descendants node =
     match node with
     | File _ -> [ node ]
     | Directory dir -> (Directory dir) :: (dir.children |> List.collect descendants)
 
-let sumSize (node: FileSystemItem) =
+let sumSize node =
     descendants node |> filterFiles |> Seq.sumBy (fun file -> file.fileSize)
 
 let directorySizes =
