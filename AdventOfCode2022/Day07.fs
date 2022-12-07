@@ -11,17 +11,17 @@ and FileInfo =
 
 and DirectoryInfo =
     { name: string
-      mutable subitems: FileSystemItem list
+      mutable children: FileSystemItem list
       parent: DirectoryInfo option }
 
-let filterFiles (items: FileSystemItem list) =
+let filterFiles items =
     items
     |> Seq.choose (fun item ->
         match item with
         | File file -> Some(file)
         | _ -> None)
 
-let filterDirs (items: FileSystemItem list) =
+let filterDirs items =
     items
     |> Seq.choose (fun item ->
         match item with
@@ -29,36 +29,34 @@ let filterDirs (items: FileSystemItem list) =
         | _ -> None)
 
 let fileSystem =
-    let cd (destination: string) (cwd: DirectoryInfo) =
+    let cd destination (cwd: DirectoryInfo) =
         match destination with
         | ".." -> cwd.parent.Value
-        | _ -> cwd.subitems |> filterDirs |> Seq.find (fun dir -> dir.name = destination)
+        | _ -> cwd.children |> filterDirs |> Seq.find (fun dir -> dir.name = destination)
 
     let getWord i (text: string) = text.Split(' ')[i]
 
     let ls (output: string list) (cwd: DirectoryInfo) =
-        cwd.subitems <-
-            output
-            |> Seq.map (fun dirent ->
-                match getWord 0 dirent with
-                | "dir" ->
-                    Directory
-                        { name = getWord 1 dirent
-                          subitems = []
-                          parent = Some(cwd) }
-                | _ ->
-                    File
-                        { name = getWord 1 dirent
-                          fileSize = uint64 (getWord 0 dirent)
-                          parent = Some(cwd) })
-            |> Seq.toList
-
-        cwd
-
+        { cwd with
+            children =
+                output
+                |> Seq.map (fun dirent ->
+                    match getWord 0 dirent with
+                    | "dir" ->
+                        Directory
+                            { name = getWord 1 dirent
+                              children = []
+                              parent = Some(cwd) }
+                    | _ ->
+                        File
+                            { name = getWord 1 dirent
+                              fileSize = uint64 (getWord 0 dirent)
+                              parent = Some(cwd) })
+                |> Seq.toList }
 
     let root =
         { name = "/"
-          subitems = []
+          children = []
           parent = None }
 
     let input = Helpers.readInput 7
@@ -78,7 +76,10 @@ let fileSystem =
     let consumeCommand (line: string) (output: string list) (currentCwd: DirectoryInfo) =
         match getWord 1 line with
         | "cd" -> cd (getWord 2 line) currentCwd
-        | "ls" -> ls output currentCwd
+        | "ls" ->
+            let newCwd = ls output currentCwd
+            currentCwd.children <- newCwd.children
+            currentCwd
         | _ -> failwith "Unsupported command."
 
     let lastCwd =
@@ -91,7 +92,7 @@ let fileSystem =
 let rec descendants (node: FileSystemItem) =
     match node with
     | File _ -> [ node ]
-    | Directory dir -> (Directory dir) :: (dir.subitems |> List.collect descendants)
+    | Directory dir -> (Directory dir) :: (dir.children |> List.collect descendants)
 
 let sumSize (node: FileSystemItem) =
     descendants node |> filterFiles |> Seq.sumBy (fun file -> file.fileSize)
