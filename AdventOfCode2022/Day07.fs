@@ -18,14 +18,14 @@ let filterFiles items =
     items
     |> Seq.choose (fun item ->
         match item with
-        | File file -> Some(file)
+        | File file -> Some file
         | _ -> None)
 
 let filterDirs items =
     items
     |> Seq.choose (fun item ->
         match item with
-        | Directory dir -> Some(dir)
+        | Directory dir -> Some dir
         | _ -> None)
 
 let fileSystem =
@@ -34,23 +34,23 @@ let fileSystem =
         | ".." -> cwd.parent.Value
         | _ -> cwd.children |> filterDirs |> Seq.find (fun dir -> dir.name = destination)
 
-    let getWord i (text: string) = text.Split(' ')[i]
+    let word i (text: string) = text.Split(' ')[i]
 
-    let ls (output: string list) (cwd: DirectoryInfo) =
+    let ls (output: string seq) (cwd: DirectoryInfo) =
         cwd.children <-
             output
             |> Seq.map (fun dirent ->
-                match getWord 0 dirent with
+                match word 0 dirent with
                 | "dir" ->
                     Directory
-                        { name = getWord 1 dirent
+                        { name = word 1 dirent
                           children = []
-                          parent = Some(cwd) }
+                          parent = Some cwd }
                 | _ ->
                     File
-                        { name = getWord 1 dirent
-                          fileSize = uint64 (getWord 0 dirent)
-                          parent = Some(cwd) })
+                        { name = word 1 dirent
+                          fileSize = uint64 (word 0 dirent)
+                          parent = Some cwd })
             |> Seq.toList
 
     let root =
@@ -61,28 +61,22 @@ let fileSystem =
     let input = Helpers.readInput 7
     let isCommand (line: string) = line.StartsWith('$')
 
-    let inputParsed =
-        input
-        |> Seq.mapi (fun i line -> (i, line))
-        |> Seq.filter (fun (i, line) -> isCommand line)
-        |> Seq.map (fun (i, line) ->
-            (line,
-             input
-             |> Seq.skip (i + 1)
-             |> Seq.takeWhile (fun line -> line |> isCommand |> not)
-             |> Seq.toList))
+    let readCmdOutput cmdLineIndex =
+        input |> Seq.skip (cmdLineIndex + 1) |> Seq.takeWhile (isCommand >> not)
 
-    let consumeCommand line output currentCwd =
-        match getWord 1 line with
-        | "cd" -> cd (getWord 2 line) currentCwd
+    let consumeCommand lineIndex line currentCwd =
+        match word 1 line with
+        | "cd" -> cd (word 2 line) currentCwd
         | "ls" ->
-            ls output currentCwd
+            ls (readCmdOutput lineIndex) currentCwd
             currentCwd
         | _ -> failwith "Unsupported command."
 
-    inputParsed
+    input
+    |> Seq.indexed
+    |> Seq.filter (fun (_, line) -> isCommand line)
     |> Seq.skip 1
-    |> Seq.fold (fun state (line, output) -> consumeCommand line output state) root
+    |> Seq.fold (fun state (i, line) -> consumeCommand i line state) root
     |> ignore
 
     Directory root
@@ -92,17 +86,17 @@ let rec descendants node =
     | File _ -> [ node ]
     | Directory dir -> (Directory dir) :: (dir.children |> List.collect descendants)
 
-let sumSize node =
+let totalSize node =
     descendants node |> filterFiles |> Seq.sumBy (fun file -> file.fileSize)
 
 let directorySizes =
     descendants fileSystem
     |> filterDirs
-    |> Seq.map (fun dir -> sumSize (Directory dir))
+    |> Seq.map (fun dir -> totalSize (Directory dir))
 
 let part1 = directorySizes |> Seq.filter (fun size -> size <= 100000UL) |> Seq.sum
 
 let part2 =
     directorySizes
     |> Seq.sort
-    |> Seq.find (fun size -> 70000000UL - (sumSize fileSystem) + size >= 30000000UL)
+    |> Seq.find (fun size -> 70000000UL - (totalSize fileSystem) + size >= 30000000UL)
