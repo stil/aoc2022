@@ -29,26 +29,19 @@ let fileSystem =
              |> Seq.takeWhile (fun line -> line |> isCommand |> not)
              |> Seq.toList))
 
-    let root =
-        { name = "/"
-          subitems = []
-          parent = None }
 
-    let mutable cwd = root
-
-    let cd (destination: string) =
+    let cd (destination: string) (cwd: DirectoryInfo) =
         if destination = ".." then
-            cwd <- cwd.parent.Value
+            cwd.parent.Value
         else
-            cwd <-
-                cwd.subitems
-                |> Seq.choose (fun item ->
-                    match item with
-                    | Directory dirinfo -> if dirinfo.name = destination then Some(dirinfo) else None
-                    | _ -> None)
-                |> Seq.head
+            cwd.subitems
+            |> Seq.choose (fun item ->
+                match item with
+                | Directory dirinfo -> if dirinfo.name = destination then Some(dirinfo) else None
+                | _ -> None)
+            |> Seq.head
 
-    let ls (output: string list) =
+    let ls (output: string list) (cwd: DirectoryInfo) =
         cwd.subitems <-
             output
             |> Seq.map (fun dirent ->
@@ -67,15 +60,28 @@ let fileSystem =
                           parent = Some(cwd) })
             |> Seq.toList
 
-    let consumeCommand (line: string) (output: string list) =
+        cwd
+
+    let consumeCommand (line: string) (output: string list) (currentCwd: DirectoryInfo) =
         let parts = line.Split(' ')
 
-        match parts[1] with
-        | "cd" -> cd parts[2]
-        | "ls" -> ls output
-        | _ -> failwith "Unsupported command."
+        let nextCwd =
+            match parts[1] with
+            | "cd" -> cd parts[2] currentCwd
+            | "ls" -> ls output currentCwd
+            | _ -> failwith "Unsupported command."
 
-    inputParsed |> Seq.skip 1 |> Seq.iter (fun cmd -> cmd ||> consumeCommand)
+        nextCwd
+
+    let root =
+        { name = "/"
+          subitems = []
+          parent = None }
+
+    let lastCwd =
+        inputParsed
+        |> Seq.skip 1
+        |> Seq.fold (fun state (line, output) -> consumeCommand line output state) root
 
     Directory root
 
