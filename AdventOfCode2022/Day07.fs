@@ -14,7 +14,53 @@ and DirectoryInfo =
       mutable subitems: FileSystemItem list
       parent: DirectoryInfo option }
 
+let filterFiles (items: FileSystemItem list) =
+    items
+    |> Seq.choose (fun item ->
+        match item with
+        | File file -> Some(file)
+        | _ -> None)
+
+let filterDirs (items: FileSystemItem list) =
+    items
+    |> Seq.choose (fun item ->
+        match item with
+        | Directory dir -> Some(dir)
+        | _ -> None)
+
 let fileSystem =
+    let cd (destination: string) (cwd: DirectoryInfo) =
+        match destination with
+        | ".." -> cwd.parent.Value
+        | _ -> cwd.subitems |> filterDirs |> Seq.find (fun dir -> dir.name = destination)
+
+    let getWord i (text: string) = text.Split(' ')[i]
+
+    let ls (output: string list) (cwd: DirectoryInfo) =
+        cwd.subitems <-
+            output
+            |> Seq.map (fun dirent ->
+                match getWord 0 dirent with
+                | "dir" ->
+                    Directory
+                        { name = getWord 1 dirent
+                          subitems = []
+                          parent = Some(cwd) }
+                | _ ->
+                    File
+                        { name = getWord 1 dirent
+                          fileSize = uint64 (getWord 0 dirent)
+                          parent = Some(cwd) })
+            |> Seq.toList
+
+        cwd
+
+
+    let root =
+        { name = "/"
+          subitems = []
+          parent = None }
+
     let input = Helpers.readInput 7
     let isCommand (line: string) = line.StartsWith('$')
 
@@ -29,50 +75,11 @@ let fileSystem =
              |> Seq.takeWhile (fun line -> line |> isCommand |> not)
              |> Seq.toList))
 
-    let cd (destination: string) (cwd: DirectoryInfo) =
-        match destination with
-        | ".." -> cwd.parent.Value
-        | _ ->
-            cwd.subitems
-            |> Seq.choose (fun item ->
-                match item with
-                | Directory dirinfo -> if dirinfo.name = destination then Some(dirinfo) else None
-                | _ -> None)
-            |> Seq.head
-
-    let ls (output: string list) (cwd: DirectoryInfo) =
-        cwd.subitems <-
-            output
-            |> Seq.map (fun dirent ->
-                let parts = dirent.Split(' ')
-
-                match parts[0] with
-                | "dir" ->
-                    Directory
-                        { name = parts[1]
-                          subitems = []
-                          parent = Some(cwd) }
-                | _ ->
-                    File
-                        { name = parts[1]
-                          fileSize = uint64 parts[0]
-                          parent = Some(cwd) })
-            |> Seq.toList
-
-        cwd
-
     let consumeCommand (line: string) (output: string list) (currentCwd: DirectoryInfo) =
-        let parts = line.Split(' ')
-
-        match parts[1] with
-        | "cd" -> cd parts[2] currentCwd
+        match getWord 1 line with
+        | "cd" -> cd (getWord 2 line) currentCwd
         | "ls" -> ls output currentCwd
         | _ -> failwith "Unsupported command."
-
-    let root =
-        { name = "/"
-          subitems = []
-          parent = None }
 
     let lastCwd =
         inputParsed
@@ -87,26 +94,16 @@ let rec descendants (node: FileSystemItem) =
     | Directory dir -> (Directory dir) :: (dir.subitems |> List.collect descendants)
 
 let sumSize (node: FileSystemItem) =
-    descendants node
-    |> Seq.choose (fun item ->
-        match item with
-        | File file -> Some(file)
-        | _ -> None)
-    |> Seq.sumBy (fun file -> file.fileSize)
+    descendants node |> filterFiles |> Seq.sumBy (fun file -> file.fileSize)
 
 let directorySizes =
     descendants fileSystem
-    |> Seq.choose (fun item ->
-        match item with
-        | Directory info -> Some(info)
-        | _ -> None)
+    |> filterDirs
     |> Seq.map (fun dir -> sumSize (Directory dir))
 
 let part1 = directorySizes |> Seq.filter (fun size -> size <= 100000UL) |> Seq.sum
 
 let part2 =
-    let usedSpace = sumSize fileSystem
-
     directorySizes
     |> Seq.sort
-    |> Seq.find (fun size -> 70000000UL - usedSpace + size >= 30000000UL)
+    |> Seq.find (fun size -> 70000000UL - (sumSize fileSystem) + size >= 30000000UL)
