@@ -1,2 +1,2 @@
-﻿printfn $"Part 1: {Day06.part1}"
-printfn $"Part 2: {Day06.part2}"
+﻿printfn $"Part 1: {Day07.part1}"
+printfn $"Part 2: {Day07.part2}"
