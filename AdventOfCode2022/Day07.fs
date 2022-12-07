@@ -116,39 +116,21 @@ let sumSize (node: FileSystemItem) =
         |> Seq.sumBy (fun file -> file.fileSize)
     | File file -> file.fileSize
 
-let onlyDirectories =
+let directorySizes =
     descendants root
     |> Seq.choose (fun item ->
         match item with
         | Directory info -> Some(info)
         | _ -> None)
     |> Seq.map (fun dir -> (dir, sumSize (Directory dir)))
+    |> Seq.map snd
     |> Seq.toList
 
-let part1 =
-    let highSize = onlyDirectories |> Seq.filter (fun (dir, size) -> size <= 100000UL)
-
-    let result = highSize |> Seq.sumBy (fun (dir, size) -> size)
-
-    traverse (Directory root) (fun item ->
-        match item with
-        | File file -> printfn $"Scan: %s{file.name}"
-        | Directory dir -> printfn $"Scan: %s{dir.name}")
-
-    result
-
+let part1 = directorySizes |> Seq.filter (fun size -> size <= 100000UL) |> Seq.sum
 
 let part2 =
-    let bySize = onlyDirectories |> Seq.sortBy (fun (dir, size) -> size) |> Seq.toList
+    let usedSpace = sumSize (Directory root)
 
-    let totalSpace = 70000000UL
-    let requiredUnusedSpace = 30000000UL
-    let unusedSpace = totalSpace - sumSize (Directory root)
-
-    let smallest =
-        bySize
-        |> Seq.find (fun (dir, size) -> unusedSpace + size >= requiredUnusedSpace)
-        
-    let result = snd smallest
-
-    result
+    directorySizes
+    |> Seq.sort
+    |> Seq.find (fun size -> 70000000UL - usedSpace + size >= 30000000UL)
