@@ -7,7 +7,7 @@ type FileSystemItem =
 and FileInfo =
     { name: string
       fileSize: uint64
-      mutable parent: DirectoryInfo option }
+      parent: DirectoryInfo option }
 
 and DirectoryInfo =
     { name: string
@@ -15,9 +15,7 @@ and DirectoryInfo =
       parent: DirectoryInfo option }
 
 let fileSystem =
-
     let input = Helpers.readInput 7
-
     let isCommand (line: string) = line.StartsWith('$')
 
     let inputParsed =
@@ -39,29 +37,19 @@ let fileSystem =
     let mutable cwd = root
 
     let cd (destination: string) =
-        printfn $"cd to %s{destination}"
-
         if destination = ".." then
             cwd <- cwd.parent.Value
         else
-            let items =
+            cwd <-
                 cwd.subitems
-                |> Seq.filter (fun item ->
+                |> Seq.choose (fun item ->
                     match item with
-                    | Directory dirinfo -> dirinfo.name = destination
-                    | _ -> false)
-
-            let item = items |> Seq.head
-
-            match item with
-            | Directory dirinfo -> cwd <- dirinfo
-
-
+                    | Directory dirinfo -> if dirinfo.name = destination then Some(dirinfo) else None
+                    | _ -> None)
+                |> Seq.head
 
     let ls (output: string list) =
-        printfn "ls"
-
-        let entries =
+        cwd.subitems <-
             output
             |> Seq.map (fun dirent ->
                 let parts = dirent.Split(' ')
@@ -78,10 +66,6 @@ let fileSystem =
                           fileSize = uint64 parts[0]
                           parent = Some(cwd) })
             |> Seq.toList
-
-
-        cwd.subitems <- entries
-        ()
 
     let consumeCommand (line: string) (output: string list) =
         let parts = line.Split(' ')
