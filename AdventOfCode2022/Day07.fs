@@ -37,22 +37,21 @@ let fileSystem =
     let getWord i (text: string) = text.Split(' ')[i]
 
     let ls (output: string list) (cwd: DirectoryInfo) =
-        { cwd with
-            children =
-                output
-                |> Seq.map (fun dirent ->
-                    match getWord 0 dirent with
-                    | "dir" ->
-                        Directory
-                            { name = getWord 1 dirent
-                              children = []
-                              parent = Some(cwd) }
-                    | _ ->
-                        File
-                            { name = getWord 1 dirent
-                              fileSize = uint64 (getWord 0 dirent)
-                              parent = Some(cwd) })
-                |> Seq.toList }
+        cwd.children <-
+            output
+            |> Seq.map (fun dirent ->
+                match getWord 0 dirent with
+                | "dir" ->
+                    Directory
+                        { name = getWord 1 dirent
+                          children = []
+                          parent = Some(cwd) }
+                | _ ->
+                    File
+                        { name = getWord 1 dirent
+                          fileSize = uint64 (getWord 0 dirent)
+                          parent = Some(cwd) })
+            |> Seq.toList
 
     let root =
         { name = "/"
@@ -77,15 +76,14 @@ let fileSystem =
         match getWord 1 line with
         | "cd" -> cd (getWord 2 line) currentCwd
         | "ls" ->
-            let newCwd = ls output currentCwd
-            currentCwd.children <- newCwd.children
+            ls output currentCwd
             currentCwd
         | _ -> failwith "Unsupported command."
 
-    let lastCwd =
-        inputParsed
-        |> Seq.skip 1
-        |> Seq.fold (fun state (line, output) -> consumeCommand line output state) root
+    inputParsed
+    |> Seq.skip 1
+    |> Seq.fold (fun state (line, output) -> consumeCommand line output state) root
+    |> ignore
 
     Directory root
 
