@@ -2,15 +2,11 @@ module Day08
 
 let input = Helpers.readInput 8
 
-let grid =
-    Array2D.init input.Length input[0].Length (fun y x -> int (input[y][x] - '0'))
+let getTreeHeight y x = int (input[y][x] - '0')
+let height = input.Length
+let width = input[0].Length
 
-let getTreeHeight = Array2D.get grid
-let height = Array2D.length1 grid
-let width = Array2D.length2 grid
-
-let range minIncl maxExcl =
-    Seq.init (maxExcl - minIncl) (fun i -> minIncl + i)
+let range minIncl maxExcl = { minIncl .. (maxExcl - 1) }
 
 let part1 =
     let down =
@@ -41,17 +37,17 @@ let part2 =
         if ray.Length = 0 then
             0
         else
-            let tallerCount, blocked =
-                ray
-                |> Seq.fold
-                    (fun (tallerList, skip) (y, x) ->
-                        let height = getTreeHeight y x
-                        let blocked = height >= treeHeight
+            ray
+            |> Seq.fold
+                (fun (tallerList, skip) (y, x) ->
+                    let height = getTreeHeight y x
+                    let blocked = height >= treeHeight
 
-                        ((if skip then tallerList else (y, x) :: tallerList), (if skip then true else blocked)))
-                    ([], false)
+                    ((if skip then tallerList else (y, x) :: tallerList), (if skip then true else blocked)))
+                ([], false)
+            |> fst
+            |> Seq.length
 
-            tallerCount |> Seq.length
 
     (range 0 height, range 0 width)
     ||> Seq.allPairs
