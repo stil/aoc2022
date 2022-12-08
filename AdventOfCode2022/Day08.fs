@@ -5,7 +5,7 @@ let input = Helpers.readInput 8
 let grid =
     Array2D.init input.Length input[0].Length (fun y x -> int (input[y][x] - '0'))
 
-let getValue = Array2D.get grid
+let getHeight = Array2D.get grid
 let height = Array2D.length1 grid
 let width = Array2D.length2 grid
 
@@ -16,72 +16,57 @@ let part1 =
     let down =
         range 0 width |> Seq.map (fun x -> range 0 height |> Seq.map (fun y -> (y, x)))
 
-    let up = down |> Seq.map Seq.rev
-
     let right =
         range 0 height |> Seq.map (fun y -> range 0 width |> Seq.map (fun x -> (y, x)))
 
+    let up = down |> Seq.map Seq.rev
     let left = right |> Seq.map Seq.rev
 
     let rays = [ down; up; right; left ] |> Seq.concat
 
-    let growthCount source =
-        let sourceList = source |> Seq.toList
+    let visibleTrees ray =
+        let maxHeightSoFar, tallerCount =
+            ray
+            |> Seq.fold
+                (fun (maxHeightSoFar, tallerList) (y, x) ->
+                    let height = getHeight y x
+                    let taller = height > maxHeightSoFar
+                    (max height maxHeightSoFar, (if taller then (y, x) :: tallerList else tallerList)))
+                (-1, [])
 
-        if sourceList.Length = 0 then
-            []
-        else
-            let (maxHeightSoFar, tallerCount) =
-                source
-                |> Seq.fold
-                    (fun (maxHeightSoFar, tallerList) (y, x) ->
-                        let height = getValue y x
-                        let taller = height > maxHeightSoFar
-                        (max height maxHeightSoFar, (if taller then (y, x) :: tallerList else tallerList)))
-                    (-1, [])
+        tallerCount
 
-            tallerCount
-
-    rays
-    |> Seq.map (fun ray -> ray |> growthCount)
-    |> Seq.collect id
-    |> Set
-    |> Set.count
+    rays |> Seq.map visibleTrees |> Seq.collect id |> Set |> Set.count
 
 let part2 =
-    let growthCount h source =
-        let sourceList = source |> Seq.toList
-
-        if sourceList.Length = 0 then
-            []
+    let viewingDistance treeHeight (ray: (int * int) list) =
+        if ray.Length = 0 then
+            0
         else
-            let (maxHeightSoFar, tallerCount, blocked) =
-                source
+            let tallerCount, blocked =
+                ray
                 |> Seq.fold
-                    (fun (maxHeightSoFar, tallerList, skip) (y, x) ->
-                        let height = getValue y x
-                        let blocked = height >= maxHeightSoFar
+                    (fun (tallerList, skip) (y, x) ->
+                        let height = getHeight y x
+                        let blocked = height >= treeHeight
 
-                        (max height maxHeightSoFar,
-                         (if skip then tallerList else (y, x) :: tallerList),
-                         if skip then true else blocked))
-                    (h, [], false)
+                        ((if skip then tallerList else (y, x) :: tallerList), (if skip then true else blocked)))
+                    ([], false)
 
-            tallerCount
+            tallerCount |> Seq.length
 
     (range 0 height, range 0 width)
     ||> Seq.allPairs
     |> Seq.map (fun (houseY, houseX) ->
-        let up = range 0 houseY |> Seq.map (fun y -> (houseY - 1 - y, houseX))
         let down = range (houseY + 1) height |> Seq.map (fun y -> (y, houseX))
-        let left = range 0 houseX |> Seq.map (fun x -> (houseY, houseX - 1 - x))
         let right = range (houseX + 1) width |> Seq.map (fun x -> (houseY, x))
+        let up = range 0 houseY |> Seq.map (fun y -> (houseY - 1 - y, houseX))
+        let left = range 0 houseX |> Seq.map (fun x -> (houseY, houseX - 1 - x))
 
-        let currentHeight = getValue houseY houseX
+        let currentHeight = getHeight houseY houseX
 
         [ up; down; left; right ]
-        |> Seq.map (growthCount currentHeight)
-        |> Seq.map Seq.length
+        |> Seq.map (Seq.toList >> viewingDistance currentHeight)
         |> Seq.reduce (*))
     |> Seq.max
 
