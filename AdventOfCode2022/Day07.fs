@@ -84,7 +84,7 @@ let fileSystem =
 let rec descendants node =
     match node with
     | File _ -> [ node ]
-    | Directory dir -> (Directory dir) :: (dir.children |> List.collect descendants)
+    | Directory dir -> node :: (dir.children |> List.collect descendants)
 
 let totalSize node =
     descendants node |> filterFiles |> Seq.sumBy (fun file -> file.fileSize)
@@ -100,3 +100,6 @@ let part2 =
     directorySizes
     |> Seq.sort
     |> Seq.find (fun size -> 70000000UL - (totalSize fileSystem) + size >= 30000000UL)
+
+Helpers.assertEqual 2104783UL part1
+Helpers.assertEqual 5883165UL part2
