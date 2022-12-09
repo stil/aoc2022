@@ -1,26 +1,18 @@
 module Day09
 
 let step (dirY, dirX) y0 x0 = (y0 + dirY, x0 + dirX)
-let stepUp = step (1, 0)
-let stepDown = step (-1, 0)
-let stepRight = step (0, 1)
-let stepLeft = step (0, -1)
 
 let input =
     Helpers.readInput 9
-    |> Seq.collect (fun line ->
-        let steps = int line[2..]
-
-        let stepFn =
-            match line[0] with
-            | 'R' -> stepRight
-            | 'L' -> stepLeft
-            | 'U' -> stepUp
-            | 'D' -> stepDown
-            | _ -> failwith "Unsupported direction."
-
-        Seq.replicate steps stepFn)
-    |> Seq.toList
+    |> Seq.map (fun line ->
+        (int line[2..],
+         match line[0] with
+         | 'R' -> step (0, 1)
+         | 'L' -> step (0, -1)
+         | 'U' -> step (1, 0)
+         | 'D' -> step (-1, 0)
+         | _ -> failwith "Unsupported direction."))
+    |> Seq.collect (fun instr -> instr ||> Seq.replicate)
 
 let distance y0 x0 y1 x1 = (y1 - y0, x1 - x0)
 let isTouching (x, y) = abs x <= 1 && abs y <= 1
@@ -29,7 +21,6 @@ let clamp value =
     if value >= 0 then min 1 value else max -1 value
 
 let pullVector (x, y) = (clamp -x, clamp -y)
-
 
 let findNextTailPos (tailPos: int * int) (nextHeadPos: int * int) =
     let distance = tailPos ||> (nextHeadPos ||> distance)
@@ -41,42 +32,30 @@ let findNextTailPos (tailPos: int * int) (nextHeadPos: int * int) =
     else
         tailPos
 
-let rec adjustRope rope =
-    let visitedLinkIndices = [ 0 .. (rope |> List.length) - 2 ]
+let adjustRope rope =
+    [ 0 .. (rope |> List.length) - 2 ]
+    |> Seq.fold
+        (fun accRope linkIndex ->
+            let headPos = accRope |> List.skip linkIndex |> List.head
+            let tailPos = accRope |> List.skip (linkIndex + 1) |> List.head
+            let nextTailPos = findNextTailPos tailPos headPos
+            accRope |> List.updateAt (linkIndex + 1) nextTailPos)
+        rope
 
-    let adj rope =
-        visitedLinkIndices
-        |> Seq.fold
-            (fun accRope linkIndex ->
-                let headPos = accRope |> List.skip linkIndex |> List.head
-                let tailPos = accRope |> List.skip (linkIndex + 1) |> List.head
-                let nextTailPos = findNextTailPos tailPos headPos
-                let newRope = accRope |> List.updateAt (linkIndex + 1) nextTailPos
-                newRope)
-            rope
+let countUniqueVisitedByTail ropeLength =
+    let rope = List.replicate ropeLength (0, 0)
 
-    let newRope =
-        rope |> adj |> adj |> adj |> adj |> adj |> adj |> adj |> adj |> adj |> adj
-
-    newRope
-
-// head to tail order
-let countVisitedByTail ropeLength =
-    let rope = Seq.replicate ropeLength (0, 0) |> Seq.toList
-
-    let (finalRope, visitedByTail) =
+    let finalRope, visitedByTail =
         ((rope, []), input)
         ||> Seq.fold (fun (rope, visited) stepFn ->
             let newRope = rope |> List.updateAt 0 (rope |> List.head ||> stepFn) |> adjustRope
             let newRopeTail = newRope |> List.last
             (newRope, newRopeTail :: visited))
 
-    let uniqueVisited = visitedByTail |> Set |> Set.count
+    visitedByTail |> Set |> Set.count
 
-    uniqueVisited
-
-let part1 = countVisitedByTail 2
-let part2 = countVisitedByTail 10
+let part1 = countUniqueVisitedByTail 2
+let part2 = countUniqueVisitedByTail 10
 
 Helpers.assertEqual 6026 part1
 Helpers.assertEqual 2273 part2
