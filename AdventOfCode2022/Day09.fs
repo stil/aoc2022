@@ -22,93 +22,61 @@ let input =
         Seq.replicate steps stepFn)
     |> Seq.toList
 
-let part1 =
-    let distance y0 x0 y1 x1 = (y1 - y0, x1 - x0)
-    let isTouching (x, y) = abs x <= 1 && abs y <= 1
+let distance y0 x0 y1 x1 = (y1 - y0, x1 - x0)
+let isTouching (x, y) = abs x <= 1 && abs y <= 1
 
-    let clamp value =
-        if value >= 0 then min 1 value else max -1 value
+let clamp value =
+    if value >= 0 then min 1 value else max -1 value
 
-    let pullVector (x, y) = (clamp -x, clamp -y)
+let pullVector (x, y) = (clamp -x, clamp -y)
 
 
-    let findNextTailPos (tailPos: int * int) (nextHeadPos: int * int) =
-        let distance = tailPos ||> (nextHeadPos ||> distance)
-        let isTouching = isTouching distance
+let findNextTailPos (tailPos: int * int) (nextHeadPos: int * int) =
+    let distance = tailPos ||> (nextHeadPos ||> distance)
+    let isTouching = isTouching distance
 
-        if not isTouching then
-            let pullVector = pullVector distance
-            (fst tailPos + fst pullVector, snd tailPos + snd pullVector)
-        else
-            tailPos
+    if not isTouching then
+        let pullVector = pullVector distance
+        (fst tailPos + fst pullVector, snd tailPos + snd pullVector)
+    else
+        tailPos
 
-    let (finalHeadPos, finalTailPos, finalVisited) =
-        (((0, 0), (0, 0), []), input)
-        ||> Seq.fold (fun (headPos, tailPos, visited) stepFn ->
-            let nextHeadPos = headPos ||> stepFn
-            let nextTailPos = findNextTailPos tailPos nextHeadPos
-            (nextHeadPos, nextTailPos, nextTailPos :: visited))
+let rec adjustRope rope =
+    let visitedLinkIndices = [ 0 .. (rope |> List.length) - 2 ]
 
-    let uniqueVisited = finalVisited |> Set |> Set.count
+    let adj rope =
+        visitedLinkIndices
+        |> Seq.fold
+            (fun accRope linkIndex ->
+                let headPos = accRope |> List.skip linkIndex |> List.head
+                let tailPos = accRope |> List.skip (linkIndex + 1) |> List.head
+                let nextTailPos = findNextTailPos tailPos headPos
+                let newRope = accRope |> List.updateAt (linkIndex + 1) nextTailPos
+                newRope)
+            rope
+
+    let newRope =
+        rope |> adj |> adj |> adj |> adj |> adj |> adj |> adj |> adj |> adj |> adj
+
+    newRope
+
+// head to tail order
+let countVisitedByTail ropeLength =
+    let rope = Seq.replicate ropeLength (0, 0) |> Seq.toList
+
+    let (finalRope, visitedByTail) =
+        ((rope, []), input)
+        ||> Seq.fold (fun (rope, visited) stepFn ->
+            let newRope = rope |> List.updateAt 0 (rope |> List.head ||> stepFn) |> adjustRope
+            let newRopeTail = newRope |> List.last
+            (newRope, newRopeTail :: visited))
+
+    let uniqueVisited = visitedByTail |> Set |> Set.count
 
     uniqueVisited
 
-let part2 =
-    let distance y0 x0 y1 x1 = (y1 - y0, x1 - x0)
-    let isTouching (x, y) = abs x <= 1 && abs y <= 1
+let part1 = countVisitedByTail 2
+let part2 = countVisitedByTail 10
 
-    let clamp value =
-        if value >= 0 then min 1 value else max -1 value
-
-    let pullVector (x, y) = (clamp -x, clamp -y)
-
-
-    let findNextTailPos (tailPos: int * int) (nextHeadPos: int * int) =
-        let distance = tailPos ||> (nextHeadPos ||> distance)
-        let isTouching = isTouching distance
-
-        if not isTouching then
-            let pullVector = pullVector distance
-            (fst tailPos + fst pullVector, snd tailPos + snd pullVector)
-        else
-            tailPos
-
-    let rec adjustRope rope =
-        let visitedLinkIndices = [ 0 .. (rope |> List.length) - 2 ]
-
-        let adj rope =
-            visitedLinkIndices
-            |> Seq.fold
-                (fun accRope linkIndex ->
-                    let headPos = accRope |> List.skip linkIndex |> List.head
-                    let tailPos = accRope |> List.skip (linkIndex + 1) |> List.head
-                    let nextTailPos = findNextTailPos tailPos headPos
-                    let newRope = accRope |> List.updateAt (linkIndex + 1) nextTailPos
-                    newRope)
-                rope
-
-        let newRope =
-            rope |> adj |> adj |> adj |> adj |> adj |> adj |> adj |> adj |> adj |> adj
-
-        newRope
-
-    // head to tail order
-    let countVisitedByTail ropeLength =
-        let rope = Seq.replicate ropeLength (0, 0) |> Seq.toList
-
-        let (finalRope, visitedByTail) =
-            ((rope, []), input)
-            ||> Seq.fold (fun (rope, visited) stepFn ->
-                let newRope = rope |> List.updateAt 0 (rope |> List.head ||> stepFn) |> adjustRope
-                let newRopeTail = newRope |> List.last
-                (newRope, newRopeTail :: visited))
-
-        let uniqueVisited = visitedByTail |> Set |> Set.count
-
-        uniqueVisited
-
-    let result = countVisitedByTail 10
-    Helpers.assertEqual 6026 (countVisitedByTail 2)
-    Helpers.assertEqual 2273 (countVisitedByTail 10)
-
-    result
+Helpers.assertEqual 6026 part1
+Helpers.assertEqual 2273 part2
