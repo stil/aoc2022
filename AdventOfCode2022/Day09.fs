@@ -21,7 +21,7 @@ let clamp value = value |> max -1 |> min 1
 let pullVector (x, y) =
     if isTouching (x, y) then (0, 0) else (clamp -x, clamp -y)
 
-let findNextTailPos (tailPos: int * int) (headPos: int * int) =
+let findNextTailPos tailPos headPos =
     let distance = subtract tailPos headPos
     let pullVector = pullVector distance
     add tailPos pullVector
