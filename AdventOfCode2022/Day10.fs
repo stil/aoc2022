@@ -46,36 +46,30 @@ let part1 =
 let part2 =
     let crt = Array2D.init 6 40 (fun _ _ -> '.')
 
-    let printCrt crt =
-        crt
-        |> Array2D.iteri (fun y x v ->
-            let str = string v
-            printf $"%s{str}"
-            if x = Array2D.length2 crt - 1 then printfn "" else ())
-
     let nextCrtOffset (y, x) =
         let y = if x >= (Array2D.length2 crt - 1) then y + 1 else y
         let x = (x + 1) % (Array2D.length2 crt)
         let y = y % (Array2D.length1 crt)
         (y, x)
 
-    let litPixel crt (y, x) = Array2D.set crt y x '#'
-
     input
     |> Seq.fold
-        (fun crtOffset xRegister ->
-            let spriteRange = [ (xRegister - 1) .. (xRegister + 1) ]
-            let drawnOffset = spriteRange |> Seq.tryFind (fun o -> o = (snd crtOffset))
+        (fun (crtY, crtX) xRegister ->
+            if crtX >= (xRegister - 1) && crtX <= (xRegister + 1) then
+                Array2D.set crt crtY crtX '#'
 
-            match drawnOffset with
-            | Some offset -> litPixel crt (fst crtOffset, offset)
-            | None -> ()
-
-            nextCrtOffset crtOffset)
+            nextCrtOffset (crtY, crtX))
         (0, 0)
     |> ignore
 
-    printCrt crt
+    let printCrt () =
+        crt
+        |> Array2D.iteri (fun y x v ->
+            let str = string v
+            printf $"%s{str}"
+            if x = Array2D.length2 crt - 1 then printfn "" else ())
+
+    printCrt ()
     0
 
 Helpers.assertEqual 12560 part1
