@@ -59,25 +59,21 @@ let part2 =
         let y = y % (Array2D.length1 crt)
         (y, x)
 
-    let litPixel crt (y, x) =
-        Array2D.set crt y x '#'
-        crt
+    let litPixel crt (y, x) = Array2D.set crt y x '#'
 
-    let (crt, crtOffset) =
-        input
-        |> Seq.fold
-            (fun (crt, crtOffset) xRegister ->
-                let spriteRange = [ (xRegister - 1) .. (xRegister + 1) ]
-                let drawnOffset = spriteRange |> Seq.tryFind (fun o -> o = (snd crtOffset))
-                let newCrtOffset = nextCrtOffset crtOffset
+    input
+    |> Seq.fold
+        (fun crtOffset xRegister ->
+            let spriteRange = [ (xRegister - 1) .. (xRegister + 1) ]
+            let drawnOffset = spriteRange |> Seq.tryFind (fun o -> o = (snd crtOffset))
 
-                let newCrt =
-                    match drawnOffset with
-                    | Some offset -> litPixel crt (fst crtOffset, offset)
-                    | None -> crt
+            match drawnOffset with
+            | Some offset -> litPixel crt (fst crtOffset, offset)
+            | None -> ()
 
-                (newCrt, newCrtOffset))
-            (crt, (0, 0))
+            nextCrtOffset crtOffset)
+        (0, 0)
+    |> ignore
 
     printCrt crt
     0
