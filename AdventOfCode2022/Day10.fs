@@ -65,8 +65,7 @@ let part2 =
     let printCrt () =
         crt
         |> Array2D.iteri (fun y x v ->
-            let str = string v
-            printf $"%s{str}"
+            printf $"%s{(string v)}"
             if x = Array2D.length2 crt - 1 then printfn "" else ())
 
     printCrt ()
