@@ -13,40 +13,38 @@ let input =
         | "addx" -> [ NOOP; ADDX(int parts[1]) ]
         | "noop" -> [ NOOP ]
         | _ -> failwith "Unrecognized instruction.")
+    |> Seq.fold
+        (fun cycleList instr ->
+            let currentX = cycleList |> List.last
 
+            let nextX =
+                match instr with
+                | ADDX value -> currentX + value
+                | NOOP -> currentX
+
+            cycleList @ [ nextX ])
+        [ 1 ]
 
 let part1 =
-
-    let state = (1, 0, 0)
-
     let interestingCycles = [ 20..40..220 ] |> Set
 
-    let (xRegister, completedCycles, signalStrengthSum) =
-        input
-        |> Seq.fold
-            (fun (xRegister, completedCycles, signalStrengthSum) instr ->
-                let newXRegister =
-                    match instr with
-                    | ADDX value -> xRegister + value
-                    | NOOP -> xRegister
+    input
+    |> Seq.fold
+        (fun (signalStrengthSum, cycles) xRegister ->
+            let newCycles = cycles + 1
+            let signalStrength = xRegister * newCycles
 
-                let newCompletedCycles = completedCycles + 1
-                let isInterestingCycle = interestingCycles |> Set.contains newCompletedCycles
-                let signalStrength = xRegister * newCompletedCycles
+            let newSignalStrengthSum =
+                match interestingCycles |> Set.contains newCycles with
+                | true -> signalStrengthSum + signalStrength
+                | false -> signalStrengthSum
 
-                let newSignalStrengthSum =
-                    if isInterestingCycle then
-                        signalStrengthSum + signalStrength
-                    else
-                        signalStrengthSum
-
-                (newXRegister, newCompletedCycles, newSignalStrengthSum))
-            state
-
-    signalStrengthSum
+            (newSignalStrengthSum, newCycles))
+        (0, 0)
+    |> fst
 
 let part2 =
-    let crt = Array2D.init 6 40 (fun y x -> '.')
+    let crt = Array2D.init 6 40 (fun _ _ -> '.')
 
     let printCrt crt =
         crt
@@ -57,50 +55,31 @@ let part2 =
 
     let nextCrtOffset (y, x) =
         let y = if x >= (Array2D.length2 crt - 1) then y + 1 else y
-        let x = if x >= (Array2D.length2 crt - 1) then 0 else x + 1
-        let y = if y > (Array2D.length1 crt - 1) then 0 else y
+        let x = (x + 1) % (Array2D.length2 crt)
+        let y = y % (Array2D.length1 crt)
         (y, x)
-
-    Helpers.assertEqual (0, 1) (nextCrtOffset (0, 0))
-    Helpers.assertEqual (1, 0) (nextCrtOffset (0, 39))
-    Helpers.assertEqual (0, 0) (nextCrtOffset (5, 39))
-
-
-    let startState = (crt, 1, (0, 0))
 
     let litPixel crt (y, x) =
         Array2D.set crt y x '#'
         crt
 
-    let result =
+    let (crt, crtOffset) =
         input
         |> Seq.fold
-            (fun (crt, xRegister, crtOffset) instr ->
+            (fun (crt, crtOffset) xRegister ->
                 let spriteRange = [ (xRegister - 1) .. (xRegister + 1) ]
-
                 let drawnOffset = spriteRange |> Seq.tryFind (fun o -> o = (snd crtOffset))
-
                 let newCrtOffset = nextCrtOffset crtOffset
-
-                let newXRegister =
-                    match instr with
-                    | ADDX value -> xRegister + value
-                    | NOOP -> xRegister
 
                 let newCrt =
                     match drawnOffset with
                     | Some offset -> litPixel crt (fst crtOffset, offset)
                     | None -> crt
 
-                printCrt newCrt
-                printfn ""
-
-                (newCrt, newXRegister, newCrtOffset)
-
-                )
-            startState
+                (newCrt, newCrtOffset))
+            (crt, (0, 0))
 
     printCrt crt
-
-
     0
+
+Helpers.assertEqual 12560 part1
