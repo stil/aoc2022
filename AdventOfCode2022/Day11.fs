@@ -1,6 +1,6 @@
 module Day11
 
-// a * divisorsMultiplied + b
+// a * divisorsProduct + b
 type SpecialNumber = uint64 * uint64
 
 type Monkey =
