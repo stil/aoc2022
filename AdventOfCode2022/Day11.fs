@@ -5,7 +5,7 @@ type ComplexNumber = uint64 * uint64
 
 type Monkey =
     { Items: ComplexNumber list
-      OperationFn: ComplexNumber -> ComplexNumber
+      WorryOperation: ComplexNumber -> ComplexNumber
       Divisor: uint64
       MonkeyNumWhenTrue: int
       MonkeyNumWhenFalse: int
@@ -56,7 +56,7 @@ let monkeys =
             lines[ 1 ].Replace("  Starting items: ", "").Split(", ")
             |> Seq.map (fun v -> (intToComplexNum (uint64 (int v))))
             |> Seq.toList
-          OperationFn = operationFn
+          WorryOperation = operationFn
           Divisor = uint64 (lines[ 3 ].Replace("  Test: divisible by ", ""))
           MonkeyNumWhenTrue = int (lines[ 4 ].Replace("    If true: throw to monkey ", ""))
           MonkeyNumWhenFalse = int (lines[ 5 ].Replace("    If false: throw to monkey ", ""))
@@ -64,20 +64,19 @@ let monkeys =
     |> Seq.toList
 
 let solve roundCount afterInspectionFn =
-    let advanceSingleItem (monkeys: Monkey list) monkeyNum itemWorryLevel =
+    let advanceSingleItem (monkeys: Monkey list) monkeyNum worry =
         let monkey = monkeys[monkeyNum]
-        let worryLevelAtInspection = monkey.OperationFn itemWorryLevel
-        let worryLevelAfterInspection = afterInspectionFn worryLevelAtInspection
+        let worry = worry |> monkey.WorryOperation |> afterInspectionFn
 
         let targetMonkeyNum =
-            match divisibilityTest worryLevelAfterInspection monkey.Divisor with
+            match divisibilityTest worry monkey.Divisor with
             | true -> monkey.MonkeyNumWhenTrue
             | false -> monkey.MonkeyNumWhenFalse
 
         let targetMonkey = monkeys[targetMonkeyNum]
 
         let updatedTargetMonkey =
-            { targetMonkey with Items = ([ worryLevelAfterInspection ] |> List.append targetMonkey.Items) }
+            { targetMonkey with Items = ([ worry ] |> List.append targetMonkey.Items) }
 
         let updatedCurrentMonkey =
             { monkey with
