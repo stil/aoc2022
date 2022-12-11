@@ -70,7 +70,7 @@ let monkeys =
     |> Seq.toList
 
 let solve roundCount afterInspectionFn =
-    let playSingleItem (monkeyList: Monkey list) monkeyNum itemWorryLevel =
+    let playSingleItem (monkeyList: Monkey list) itemWorryLevel monkeyNum =
         let monkey = monkeyList[monkeyNum]
         let worryLevelAtInspection = monkey.OperationFn itemWorryLevel
         let worryLevelAfterInspection = afterInspectionFn worryLevelAtInspection
@@ -100,7 +100,7 @@ let solve roundCount afterInspectionFn =
         |> Seq.fold
             (fun (monkeyList: Monkey list) monkeyNum ->
                 monkeyList[monkeyNum].Items
-                |> Seq.fold (fun monkeyList worryLevel -> playSingleItem monkeyList monkeyNum worryLevel) monkeyList)
+                |> Seq.fold (fun monkeyList worryLevel -> playSingleItem monkeyList worryLevel monkeyNum) monkeyList)
             monkeys
 
     Seq.init roundCount id
