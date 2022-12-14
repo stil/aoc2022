@@ -5,7 +5,7 @@ type Token =
     | StartArray
     | EndArray
 
-let tokenize (packet: string) =
+let tokenizePacket (packet: string) =
     0
     |> Seq.unfold (fun index ->
         if index = packet.Length then
@@ -24,7 +24,7 @@ let tokenize (packet: string) =
     |> Seq.choose id
     |> Seq.toList
 
-// Unfold that returns accumulated state.
+// Unfold that also returns accumulated state.
 let unfold generator state =
     let rec loop build state =
         match generator state with
@@ -38,7 +38,7 @@ type Value =
     | MultiValue of Value list
 
 let parsePacket packetStr =
-    let packet = tokenize packetStr
+    let packet = tokenizePacket packetStr
 
     let rec parse (index: int) =
         let unfoldResult =
@@ -47,9 +47,7 @@ let parsePacket packetStr =
                 if index = packet.Length then
                     None
                 else
-                    let currentToken = packet[index]
-
-                    match currentToken with
+                    match packet[index] with
                     | StartArray ->
                         let read, lastIndex = parse (index + 1)
                         Some(MultiValue read, lastIndex + 1)
@@ -89,7 +87,7 @@ let rec comparePair (left: Value) (right: Value) =
             if lv.Length < rv.Length then Right
             else if lv.Length > rv.Length then Wrong
             else Inconclusive
-        | _ -> failwith "todo"
+        | _ -> failwith "Cannot happen."
 
 let packets =
     Helpers.readInput 13
@@ -104,9 +102,7 @@ let part1 =
     |> Seq.sumBy fst
 
 let part2 =
-    let dividerPackets =
-        [ MultiValue [ MultiValue [ SingleValue 2 ] ]
-          MultiValue [ MultiValue [ SingleValue 6 ] ] ]
+    let dividerPackets = [ parsePacket "[[2]]"; parsePacket "[[6]]" ]
 
     let orderedPackets =
         packets
