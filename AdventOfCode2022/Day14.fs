@@ -43,9 +43,6 @@ let grid () =
 
     grid
 
-
-
-
 let printGrid grid =
     let y0 = grid |> Array2D.base1
     let y1 = y0 + (grid |> Array2D.length1) - 1
@@ -68,36 +65,44 @@ let printGrid grid =
     array |> Seq.iter (fun line -> printfn $"%s{line}")
     ()
 
+let pourSand grid isEmptyFn stopPouringFn =
+    let sandPos = (0, 500)
+
+    let rec nextPos prevPos =
+        if (fst prevPos > (maxY + 10)) then
+            prevPos
+        else
+            let down = (fst prevPos + 1, snd prevPos)
+            let left = (fst prevPos + 1, snd prevPos - 1)
+            let right = (fst prevPos + 1, snd prevPos + 1)
+
+            if isEmptyFn down then (nextPos down)
+            elif isEmptyFn left then left
+            elif isEmptyFn right then right
+            else prevPos
+
+    let y, x = Seq.init 1000 id |> Seq.fold (fun acc _ -> nextPos acc) sandPos
+
+    if y <= (grid |> Array2D.length1) then
+        Array2D.set grid y x 'o'
+    else
+        ()
+
+    not (stopPouringFn y)
 
 let part1 =
     let grid = grid ()
 
-    let pourSand () =
-        let sandPos = (0, 500)
+    let isEmpty (y, x) =
+        if y > maxY then true else grid[y, x] = '.'
 
-        let isEmpty (y, x) =
-            if y > maxY then true else (Array2D.get grid y x) = '.'
+    let stopPouring y = y > maxY
 
-        let rec nextPos prevPos =
-            if (fst prevPos > (maxY + 10)) then
-                prevPos
-            else
-                let down = (fst prevPos + 1, snd prevPos)
-                let left = (fst prevPos + 1, snd prevPos - 1)
-                let right = (fst prevPos + 1, snd prevPos + 1)
+    let result =
+        Seq.init 1000 id
+        |> Seq.takeWhile (fun i -> pourSand grid isEmpty stopPouring)
+        |> Seq.length
 
-                if isEmpty down then (nextPos down)
-                elif isEmpty left then left
-                elif isEmpty right then right
-                else prevPos
-
-        let y, x = Seq.init 100 id |> Seq.fold (fun acc _ -> nextPos acc) sandPos
-        if y <= maxY then Array2D.set grid y x 'o' else ()
-        not (y > maxY)
-
-    let list = Seq.init 1000 id |> Seq.takeWhile (fun i -> pourSand ()) |> Seq.toList
-
-    let result = list |> Seq.length
     result
 
 
@@ -105,40 +110,19 @@ let part2 =
     let grid = grid ()
     let floorY = maxY + 2
 
-    let pourSand () =
-        let sandPos = (0, 500)
+    let isEmpty (y, x) =
+        if y >= floorY then false else (Array2D.get grid y x) = '.'
 
-        let isEmpty (y, x) =
-            if y >= floorY then false else (Array2D.get grid y x) = '.'
+    let stopPouring y = y = 0
 
-        let rec nextPos prevPos =
-            if (fst prevPos > (maxY + 10)) then
-                prevPos
-            else
-                let down = (fst prevPos + 1, snd prevPos)
-                let left = (fst prevPos + 1, snd prevPos - 1)
-                let right = (fst prevPos + 1, snd prevPos + 1)
+    let result =
+        Seq.initInfinite id
+        |> Seq.takeWhile (fun _ -> pourSand grid isEmpty stopPouring)
+        |> Seq.length
 
-                if isEmpty down then (nextPos down)
-                elif isEmpty left then left
-                elif isEmpty right then right
-                else prevPos
+    // printGrid grid
 
-        let y, x = Seq.init 1000 id |> Seq.fold (fun acc _ -> nextPos acc) sandPos
-
-        if y <= (grid |> Array2D.length1) then
-            Array2D.set grid y x 'o'
-        else
-            ()
-
-        not ((y, x) = sandPos)
-
-    let list = Seq.init 100000 id |> Seq.takeWhile (fun i -> pourSand ()) |> Seq.toList
-
-    printGrid grid
-
-    let result = (list |> Seq.length) + 1
-    result
+    result + 1
 
 Helpers.assertEqual 728 part1
 Helpers.assertEqual 27623 part2
