@@ -66,7 +66,8 @@ type OpenValve =
 type Node =
     { minutesLeft: int
       currentlyAtValve: ValveDefinition
-      openValves: OpenValve list }
+      openValves: OpenValve list
+      traveledPath: string list }
 
 let part1 =
     let valveDefinitions =
@@ -109,7 +110,9 @@ let part1 =
             []
         elif node.minutesLeft > 0 && closedUsefulValves.Count = 0 then
             // Stay at current valve and do nothing.
-            [ { node with minutesLeft = node.minutesLeft - 1 } ]
+            [ { node with
+                  minutesLeft = node.minutesLeft - 1
+                  traveledPath = [ node.currentlyAtValve.name ] |> List.append node.traveledPath } ]
         else
             let canBeOpened = closedUsefulValves |> Set.contains node.currentlyAtValve.name
 
@@ -123,8 +126,7 @@ let part1 =
                                   [ { valve = node.currentlyAtValve
                                       openAtMinutesLeft = node.minutesLeft - 1 } ]
                                   |> List.append node.openValves
-
-                           } ]
+                              traveledPath = [ node.currentlyAtValve.name ] |> List.append node.traveledPath } ]
                 // Travel to other valves
                 yield!
                     node.currentlyAtValve.leadsTo
@@ -132,7 +134,8 @@ let part1 =
                     |> Seq.map (fun destinationValve ->
                         { currentlyAtValve = destinationValve
                           minutesLeft = node.minutesLeft - 1
-                          openValves = node.openValves })
+                          openValves = node.openValves
+                          traveledPath = [ node.currentlyAtValve.name ] |> List.append node.traveledPath })
             }
             |> Seq.toList
 
@@ -156,10 +159,11 @@ let part1 =
     let startNode =
         { currentlyAtValve = getValve "AA"
           minutesLeft = timeLimit
-          openValves = [] }
+          openValves = []
+          traveledPath = [] }
 
-    let currentFn (node: Node) =
-        printfn "Current node: %s" node.currentlyAtValve.name
+    let currentFn (node: Node) = ()
+    //printfn "Current node: %s" node.currentlyAtValve.name
 
     let goalReachedFn (node: Node) = node.minutesLeft = 0
 
