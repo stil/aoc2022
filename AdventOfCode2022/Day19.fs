@@ -38,9 +38,14 @@ type State =
       Ore: int
       Clay: int
       Obsidian: int
-      Geode: int }
+      Geode: int
+      SkippedBuyingOreRobot: bool
+      SkippedBuyingClayRobot: bool
+      SkippedBuyingObsidianRobot: bool
+      SkippedBuyingGeodeRobot: bool }
 
-let part1 =
+
+let computeMaxGeodesPerBlueprint blueprints timeLimit =
     let advanceProductionAndTime (prevState: State) (state: State) =
         { state with
             Ore = state.Ore + prevState.OreRobots
@@ -79,28 +84,26 @@ let part1 =
         let stateAfterPurchase = deductCost state state.Blueprint.OreRobotCost
         { stateAfterPurchase with OreRobots = state.OreRobots + 1 }
 
-    let initialState =
-        { Blueprint = blueprints[0]
-          MinutesPassed = 0
-          OreRobots = 1
-          ClayRobots = 0
-          ObsidianRobots = 0
-          GeodeRobots = 0
-          Ore = 0
-          Clay = 0
-          Obsidian = 0
-          Geode = 0 }
-
-
-    let timeLimit = 24
-
     let nextStates (state: State) =
+        let nextState constructFn =
+            { state with
+                SkippedBuyingClayRobot = false
+                SkippedBuyingGeodeRobot = false
+                SkippedBuyingObsidianRobot = false
+                SkippedBuyingOreRobot = false }
+            |> constructFn
+            |> advanceProductionAndTime state //|> advanceTime
+
         if state.MinutesPassed = timeLimit then
             Seq.empty
+        elif state.MinutesPassed = timeLimit - 1 then
+            Seq.singleton (nextState id)
+        elif state.MinutesPassed = timeLimit - 2 then
+            if hasFunds state state.Blueprint.GeodeRobotCost then
+                Seq.singleton (nextState constructGeodeRobot)
+            else
+                Seq.singleton (nextState id)
         else
-            let nextState constructFn =
-                state |> constructFn |> advanceProductionAndTime state //|> advanceTime
-
             seq {
                 if hasFunds state state.Blueprint.GeodeRobotCost then
                     yield nextState constructGeodeRobot
@@ -109,16 +112,20 @@ let part1 =
                     let canBuyClay = hasFunds state state.Blueprint.ClayRobotCost
                     let canBuyOre = hasFunds state state.Blueprint.OreRobotCost
 
-                    if canBuyObsidian then
+                    if canBuyObsidian && not state.SkippedBuyingObsidianRobot then
                         yield nextState constructObsidianRobot
 
-                    if canBuyClay then
+                    if canBuyClay && not state.SkippedBuyingClayRobot then
                         yield nextState constructClayRobot
 
-                    if canBuyOre then
+                    if canBuyOre && not state.SkippedBuyingOreRobot then
                         yield nextState constructOreRobot
 
-                    yield nextState id
+                    yield
+                        { nextState id with
+                            SkippedBuyingOreRobot = canBuyOre
+                            SkippedBuyingClayRobot = canBuyClay
+                            SkippedBuyingObsidianRobot = canBuyObsidian }
             }
 
     let printState (state: State) =
@@ -132,7 +139,7 @@ let part1 =
 
         state
 
-    let qualityLevels =
+    let result =
         blueprints
         |> Seq.toArray
         |> Array.Parallel.map (fun blueprint ->
@@ -150,7 +157,13 @@ let part1 =
                   Ore = 0
                   Clay = 0
                   Obsidian = 0
-                  Geode = 0 },
+                  Geode = 0
+                  SkippedBuyingOreRobot = false
+                  SkippedBuyingClayRobot = false
+                  SkippedBuyingObsidianRobot = false
+                  SkippedBuyingGeodeRobot = false
+
+                },
                 0
             )
 
@@ -196,13 +209,26 @@ let part1 =
             printfn
                 $"[Blueprint %d{blueprint.Id}] [max geodes %d{maxGeodes}] [quality %d{quality}] [elapsed %d{stopwatch.ElapsedMilliseconds} ms] [scanned items %d{scannedItems}]"
 
-            quality)
+            (blueprint, maxGeodes))
 
+    result
 
-    let qualitySum = qualityLevels |> Seq.sum
+let part1 =
+    // let maxGeodesPerBlueprint = computeMaxGeodesPerBlueprint blueprints 24
+    //
+    // let qualityLevels =
+    //     maxGeodesPerBlueprint
+    //     |> Seq.map (fun (blueprint, maxGeodes) -> blueprint.Id * maxGeodes)
+    //
+    // let result = qualityLevels |> Seq.sum
+    // result
+    0
 
-    qualitySum
+let part2 =
+    let maxGeodesPerBlueprint =
+        computeMaxGeodesPerBlueprint (blueprints |> List.take (min blueprints.Length 3)) 32
 
+    let result =
+        maxGeodesPerBlueprint |> Seq.map snd |> Seq.reduce (fun mg1 mg2 -> mg1 * mg2)
 
-
-let part2 = 0
+    result
