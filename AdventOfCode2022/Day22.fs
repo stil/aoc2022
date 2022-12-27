@@ -149,24 +149,13 @@ type Face =
     | Back
 
 let part2 =
-    let measureLine line =
-        let min = line |> Seq.takeWhile (fun c -> c = ' ') |> Seq.length
-
-        let rowLength =
-            line |> Seq.skip min |> Seq.takeWhile (fun c -> c <> ' ') |> Seq.length
-
-        let max = min + rowLength
-
-        (min, max)
-
     let size = 50
 
     let faces =
         [ [ None; Some(Up); Some(Right) ]
           [ None; Some(Front) ]
           [ Some(Left); Some(Down) ]
-          [ Some(Back) ]
-          ]
+          [ Some(Back) ] ]
         |> Seq.mapi (fun rowI row ->
             row
             |> Seq.mapi (fun colI face ->
@@ -213,7 +202,6 @@ let part2 =
         let currentFace =
             faces
             |> Seq.find (fun (faceName, (r, c)) -> row >= r && row < r + size && column >= c && column < c + size)
-
 
         let newRow, newColumn =
             match facing with
@@ -269,17 +257,12 @@ let part2 =
                 | Direction.Left, Direction.Right -> (lastPos - relPos, 0)
                 | Direction.Right, Direction.Right -> (relPos, 0)
 
-
-
-
             let result =
                 (nextFaceBaseRow + nextRow, nextFaceBaseCol + nextColumn, nextDirection)
 
             result
         else
             (newRow, newColumn, facing)
-
-
 
     let advanceInstruction (state: State) (instr: Instruction) =
         match instr with
@@ -305,24 +288,6 @@ let part2 =
                 Seq.init steps id
                 |> Seq.fold
                     (fun state _ ->
-                        let mapCopy = map |> Seq.map (fun line -> line |> Seq.toList) |> Seq.toList
-
-                        let mapCopy2 =
-                            mapCopy
-                            |> Seq.map (fun line -> line |> Seq.toList)
-                            |> Seq.toList
-                            |> List.updateAt
-                                state.Row
-                                (mapCopy[state.Row] |> Seq.toList |> List.updateAt state.Column 'x')
-                            |> Seq.map System.String.Concat
-
-                        // printfn "%s" (System.String.Join("\r\n", mapCopy2))
-                        // printfn ""
-                        // printfn ""
-                        // printfn ""
-                        // printfn ""
-
-
                         let nextRow, nextColumn, nextFacing = makeStep state.Row state.Column state.Facing
 
                         if map[nextRow][nextColumn] = '#' then
@@ -333,8 +298,6 @@ let part2 =
                                 Row = nextRow
                                 Facing = nextFacing })
                     state
-
-
 
             finalState
 
