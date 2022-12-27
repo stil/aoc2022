@@ -159,12 +159,14 @@ let part2 =
 
         (min, max)
 
-    let size = 4
+    let size = 50
 
     let faces =
-        [ [ None; None; Some(Up) ]
-          [ Some(Back); Some(Left); Some(Front) ]
-          [ None; None; Some(Down); Some(Right) ] ]
+        [ [ None; Some(Up); Some(Right) ]
+          [ None; Some(Front) ]
+          [ Some(Left); Some(Down) ]
+          [ Some(Back) ]
+          ]
         |> Seq.mapi (fun rowI row ->
             row
             |> Seq.mapi (fun colI face ->
@@ -177,35 +179,35 @@ let part2 =
 
 
     let wrapRules =
-        [ ((Face.Up, Direction.Up), (Face.Back, Direction.Down))
-          ((Face.Up, Direction.Right), (Face.Right, Direction.Left))
-          ((Face.Up, Direction.Left), (Face.Left, Direction.Down))
+        [ ((Face.Up, Direction.Up), (Face.Back, Direction.Right))
+          ((Face.Up, Direction.Right), (Face.Right, Direction.Right))
+          ((Face.Up, Direction.Left), (Face.Left, Direction.Right))
           ((Face.Up, Direction.Down), (Face.Front, Direction.Down))
           // --
           ((Face.Front, Direction.Up), (Face.Up, Direction.Up))
-          ((Face.Front, Direction.Right), (Face.Right, Direction.Down))
-          ((Face.Front, Direction.Left), (Face.Left, Direction.Left))
+          ((Face.Front, Direction.Right), (Face.Right, Direction.Up))
+          ((Face.Front, Direction.Left), (Face.Left, Direction.Down))
           ((Face.Front, Direction.Down), (Face.Down, Direction.Down))
           // --
-          ((Face.Right, Direction.Up), (Face.Front, Direction.Left))
-          ((Face.Right, Direction.Right), (Face.Up, Direction.Left))
-          ((Face.Right, Direction.Left), (Face.Down, Direction.Left))
-          ((Face.Right, Direction.Down), (Face.Back, Direction.Right))
+          ((Face.Right, Direction.Up), (Face.Back, Direction.Up))
+          ((Face.Right, Direction.Right), (Face.Down, Direction.Left))
+          ((Face.Right, Direction.Left), (Face.Up, Direction.Left))
+          ((Face.Right, Direction.Down), (Face.Front, Direction.Left))
           // --
-          ((Face.Left, Direction.Up), (Face.Up, Direction.Right))
-          ((Face.Left, Direction.Right), (Face.Front, Direction.Right))
-          ((Face.Left, Direction.Left), (Face.Back, Direction.Left))
-          ((Face.Left, Direction.Down), (Face.Down, Direction.Right))
+          ((Face.Left, Direction.Up), (Face.Front, Direction.Right))
+          ((Face.Left, Direction.Right), (Face.Down, Direction.Right))
+          ((Face.Left, Direction.Left), (Face.Up, Direction.Right))
+          ((Face.Left, Direction.Down), (Face.Back, Direction.Down))
           // --
-          ((Face.Back, Direction.Up), (Face.Up, Direction.Down))
-          ((Face.Back, Direction.Right), (Face.Left, Direction.Right))
-          ((Face.Back, Direction.Left), (Face.Right, Direction.Up))
-          ((Face.Back, Direction.Down), (Face.Down, Direction.Up))
+          ((Face.Back, Direction.Up), (Face.Left, Direction.Up))
+          ((Face.Back, Direction.Right), (Face.Down, Direction.Up))
+          ((Face.Back, Direction.Left), (Face.Up, Direction.Down))
+          ((Face.Back, Direction.Down), (Face.Right, Direction.Down))
           // --
           ((Face.Down, Direction.Up), (Face.Front, Direction.Up))
-          ((Face.Down, Direction.Right), (Face.Right, Direction.Right))
-          ((Face.Down, Direction.Left), (Face.Left, Direction.Up))
-          ((Face.Down, Direction.Down), (Face.Back, Direction.Up)) ]
+          ((Face.Down, Direction.Right), (Face.Right, Direction.Left))
+          ((Face.Down, Direction.Left), (Face.Left, Direction.Left))
+          ((Face.Down, Direction.Down), (Face.Back, Direction.Left)) ]
 
     let makeStep row column (facing: Direction) =
         let currentFace =
@@ -255,7 +257,7 @@ let part2 =
                 | Direction.Down, Direction.Up -> (lastPos, lastPos - relPos)
                 | Direction.Up, Direction.Up -> (lastPos, relPos)
                 | Direction.Left, Direction.Up -> (lastPos, lastPos - relPos)
-                | Direction.Right, Direction.Up -> (lastPos,  relPos)
+                | Direction.Right, Direction.Up -> (lastPos, relPos)
                 // --
                 | Direction.Down, Direction.Left -> (relPos, lastPos)
                 | Direction.Up, Direction.Left -> (lastPos - relPos, lastPos)
@@ -314,11 +316,11 @@ let part2 =
                                 (mapCopy[state.Row] |> Seq.toList |> List.updateAt state.Column 'x')
                             |> Seq.map System.String.Concat
 
-                        printfn "%s" (System.String.Join("\r\n", mapCopy2))
-                        printfn ""
-                        printfn ""
-                        printfn ""
-                        printfn ""
+                        // printfn "%s" (System.String.Join("\r\n", mapCopy2))
+                        // printfn ""
+                        // printfn ""
+                        // printfn ""
+                        // printfn ""
 
 
                         let nextRow, nextColumn, nextFacing = makeStep state.Row state.Column state.Facing
