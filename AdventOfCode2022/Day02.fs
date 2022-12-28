@@ -68,16 +68,15 @@ let input =
     |> Seq.map (fun e -> (e[0], e[1]))
 
 let part1 =
-    let result =
-        input |> Seq.map (fun (opp, me) -> mapWeapon opp, mapWeapon me) |> sumScore
+    input
+    |> Seq.map (fun (opp, me) -> mapWeapon opp, mapWeapon me)
+    |> sumScore
+    |> string
 
-    printfn $"Result: %i{result}."
 
 let part2 =
-    let result =
-        input
-        |> Seq.map (fun (opp, me) -> mapWeapon opp, mapOutcome me)
-        |> Seq.map (fun e -> (fst e, e ||> getWeaponForOutcome))
-        |> sumScore
-
-    printfn $"Result: %i{result}."
+    input
+    |> Seq.map (fun (opp, me) -> mapWeapon opp, mapOutcome me)
+    |> Seq.map (fun e -> (fst e, e ||> getWeaponForOutcome))
+    |> sumScore
+    |> string

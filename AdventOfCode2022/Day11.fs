@@ -103,8 +103,10 @@ let solve roundCount afterInspectionFn =
     |> Seq.take 2
     |> Seq.reduce (fun a b -> a * b)
 
-let part1 = solve 20 (fun x -> ((x |> complexNumToInt) / 3UL) |> intToComplexNum)
-let part2 = solve 10000 id
+let part1 =
+    solve 20 (fun x -> ((x |> complexNumToInt) / 3UL) |> intToComplexNum) |> string
 
-Helpers.assertEqual 99840UL part1
-Helpers.assertEqual 20683044837UL part2
+let part2 = solve 10000 id |> string
+
+Helpers.assertEqual "99840" part1
+Helpers.assertEqual "20683044837" part2

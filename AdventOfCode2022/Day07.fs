@@ -94,12 +94,14 @@ let directorySizes =
     |> filterDirs
     |> Seq.map (fun dir -> totalSize (Directory dir))
 
-let part1 = directorySizes |> Seq.filter (fun size -> size <= 100000UL) |> Seq.sum
+let part1 =
+    directorySizes |> Seq.filter (fun size -> size <= 100000UL) |> Seq.sum |> string
 
 let part2 =
     directorySizes
     |> Seq.sort
     |> Seq.find (fun size -> 70000000UL - (totalSize fileSystem) + size >= 30000000UL)
+    |> string
 
-Helpers.assertEqual 2104783UL part1
-Helpers.assertEqual 5883165UL part2
+Helpers.assertEqual "2104783" part1
+Helpers.assertEqual "5883165" part2

@@ -12,6 +12,7 @@ let part1 =
     |> Seq.map Set.intersectMany
     |> Seq.map Seq.head
     |> Seq.sumBy getItemPriority
+    |> string
 
 let part2 =
     Helpers.readInput 3
@@ -20,3 +21,4 @@ let part2 =
     |> Seq.map Set.intersectMany
     |> Seq.map Seq.head
     |> Seq.sumBy getItemPriority
+    |> string

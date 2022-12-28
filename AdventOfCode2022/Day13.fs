@@ -100,6 +100,7 @@ let part1 =
     |> Seq.mapi (fun i pair -> (i + 1, pair))
     |> Seq.filter (fun (_, pair) -> (comparePair pair[0] pair[1]) = Right)
     |> Seq.sumBy fst
+    |>string
 
 let part2 =
     let dividerPackets = [ parsePacket "[[2]]"; parsePacket "[[6]]" ]
@@ -120,6 +121,7 @@ let part2 =
         |> Seq.findIndex (fun orderedPacket -> dividerPacket = orderedPacket))
     |> Seq.map (fun i -> i + 1)
     |> Seq.reduce (fun a b -> a * b)
+    |>string
 
-Helpers.assertEqual 4643 part1
-Helpers.assertEqual 21614 part2
+Helpers.assertEqual "4643" part1
+Helpers.assertEqual "21614" part2

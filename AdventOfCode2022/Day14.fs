@@ -103,7 +103,7 @@ let part1 =
         |> Seq.takeWhile (fun i -> pourSand grid isEmpty stopPouring)
         |> Seq.length
 
-    result
+    result |> string
 
 
 let part2 =
@@ -122,7 +122,7 @@ let part2 =
 
     // printGrid grid
 
-    result + 1
+    (result + 1) |> string
 
-Helpers.assertEqual 728 part1
-Helpers.assertEqual 27623 part2
+Helpers.assertEqual "728" part1
+Helpers.assertEqual "27623" part2

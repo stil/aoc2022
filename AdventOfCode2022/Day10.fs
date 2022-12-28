@@ -42,6 +42,7 @@ let part1 =
             (newSignalStrengthSum, newCycles))
         (0, 0)
     |> fst
+    |> string
 
 let part2 =
     let crt = Array2D.init 6 40 (fun _ _ -> '.')
@@ -69,6 +70,7 @@ let part2 =
             if x = Array2D.length2 crt - 1 then printfn "" else ())
 
     printCrt ()
-    0
 
-Helpers.assertEqual 12560 part1
+    "PLPAFBCL" // Human OCR
+
+Helpers.assertEqual "12560" part1

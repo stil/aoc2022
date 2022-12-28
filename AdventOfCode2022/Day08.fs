@@ -41,7 +41,7 @@ let part1 =
     let left = right |> Seq.map Seq.rev
 
     let rays = [ down; up; right; left ] |> Seq.concat
-    rays |> Seq.map visibleTrees |> Seq.collect id |> Set |> Set.count
+    rays |> Seq.map visibleTrees |> Seq.collect id |> Set |> Set.count |> string
 
 let part2 =
     let viewingDistance treeHeight ray =
@@ -62,6 +62,7 @@ let part2 =
         |> Seq.map (Seq.toList >> viewingDistance (getTreeHeight houseY houseX))
         |> Seq.reduce (*))
     |> Seq.max
+    |> string
 
-Helpers.assertEqual 1763 part1
-Helpers.assertEqual 671160 part2
+Helpers.assertEqual "1763" part1
+Helpers.assertEqual "671160" part2

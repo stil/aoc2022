@@ -48,8 +48,8 @@ let countUniqueVisitedByTail ropeLength =
 
     visitedByTail |> Set |> Set.count
 
-let part1 = countUniqueVisitedByTail 2
-let part2 = countUniqueVisitedByTail 10
+let part1 = countUniqueVisitedByTail 2 |> string
+let part2 = countUniqueVisitedByTail 10 |> string
 
-Helpers.assertEqual 6026 part1
-Helpers.assertEqual 2273 part2
+Helpers.assertEqual "6026" part1
+Helpers.assertEqual "2273" part2

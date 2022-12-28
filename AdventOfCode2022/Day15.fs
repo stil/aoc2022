@@ -55,7 +55,7 @@ let part1x () =
     printfn $"Score %d{score}"
     result
 
-let part1 = 0
+let part1 = part1x () |> string
 
 let part2 =
     let range = 4000000
@@ -93,4 +93,4 @@ let part2 =
 
     let point = pointOpt.Value
     let result = (uint64 (fst point)) * 4000000UL + (uint64 (snd point))
-    result
+    result |> string

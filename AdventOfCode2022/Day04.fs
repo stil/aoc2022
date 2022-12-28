@@ -18,8 +18,10 @@ let part1 =
     assignmentPairs
     |> Seq.filter (fun elfs -> elfs ||> Set.isSubset || elfs ||> Set.isSuperset)
     |> Seq.length
+    |> string
 
 let part2 =
     assignmentPairs
     |> Seq.filter (fun elfs -> elfs ||> Set.intersect |> Set.isEmpty |> not)
     |> Seq.length
+    |> string
