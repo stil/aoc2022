@@ -89,24 +89,24 @@ let rec comparePair (left: Value) (right: Value) =
             else Inconclusive
         | _ -> failwith "Cannot happen."
 
-let packets =
+let packets () =
     Helpers.readInput 13
     |> Seq.filter (fun line -> line <> "")
     |> Seq.map parsePacket
 
-let part1 =
-    packets
+let part1 () =
+    packets ()
     |> Seq.chunkBySize 2
     |> Seq.mapi (fun i pair -> (i + 1, pair))
     |> Seq.filter (fun (_, pair) -> (comparePair pair[0] pair[1]) = Right)
     |> Seq.sumBy fst
-    |>string
+    |> string
 
-let part2 =
+let part2 () =
     let dividerPackets = [ parsePacket "[[2]]"; parsePacket "[[6]]" ]
 
     let orderedPackets =
-        packets
+        packets ()
         |> Seq.append dividerPackets
         |> Seq.sortWith (fun a b ->
             match comparePair a b with
@@ -121,7 +121,4 @@ let part2 =
         |> Seq.findIndex (fun orderedPacket -> dividerPacket = orderedPacket))
     |> Seq.map (fun i -> i + 1)
     |> Seq.reduce (fun a b -> a * b)
-    |>string
-
-Helpers.assertEqual "4643" part1
-Helpers.assertEqual "21614" part2
+    |> string

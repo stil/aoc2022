@@ -61,7 +61,7 @@ let trimGrid (grid: string list) =
     trimmed2
 
 
-let part1 =
+let part1 () =
     let grid = Helpers.readInput 23
 
     let initialState =
@@ -167,7 +167,7 @@ let part1 =
         // printfn "%s" (System.String.Join("\r\n", updatedGrid))
 
         { state with
-            grid = updatedGrid
+            grid = trimGrid updatedGrid
             directions =
                 seq {
                     yield! (state.directions |> Seq.skip 1)
@@ -192,9 +192,9 @@ let part1 =
         |> Seq.filter (fun c -> c = '.')
         |> Seq.length
 
-    empty
+    empty |> string
 
-let part2 =
+let part2 () =
     let grid = Helpers.readInput 23
 
     let initialState =
@@ -326,4 +326,4 @@ let part2 =
         |> Seq.takeWhile (fun state -> state.movements > 0)
         |> Seq.length
 
-    result + 1
+    result + 1 |> string

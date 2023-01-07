@@ -6,7 +6,7 @@ let getItemPriority symbol =
     else
         int symbol - int 'A' + 27
 
-let part1 =
+let part1 () =
     Helpers.readInput 3
     |> Seq.map (fun e -> e |> Seq.chunkBySize (e.Length / 2) |> Seq.map Set)
     |> Seq.map Set.intersectMany
@@ -14,7 +14,7 @@ let part1 =
     |> Seq.sumBy getItemPriority
     |> string
 
-let part2 =
+let part2 () =
     Helpers.readInput 3
     |> Seq.chunkBySize 3
     |> Seq.map (Seq.map Set)

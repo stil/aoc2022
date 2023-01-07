@@ -88,7 +88,7 @@ let move (y, x) dir =
 
     nextPos
 
-let part1 =
+let part1 () =
     let initialState = { steps = 0; position = (0, 1) }
 
     let finalPositionY, finalPositionX = (height + 1, width)
@@ -198,9 +198,9 @@ let part1 =
 
     let result = shortestPath.Value.Length - 1
 
-    result
+    result |> string
 
-let part2 =
+let part2 () =
     let finalPositionY, finalPositionX = (height + 1, width)
 
     let walls =
@@ -297,5 +297,10 @@ let part2 =
     let startToGoalAgainPath =
         findShortestPathGeneric nextStates1 heuristicToGoal costFn goalToStartPath.Value.Head.Value isGoalFn
 
-    let result = startToGoalPath.Value.Length + goalToStartPath.Value.Length + startToGoalAgainPath.Value.Length - 3
-    result
+    let result =
+        startToGoalPath.Value.Length
+        + goalToStartPath.Value.Length
+        + startToGoalAgainPath.Value.Length
+        - 3
+
+    result |> string

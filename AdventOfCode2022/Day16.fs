@@ -99,7 +99,7 @@ let valveDefinitionsDict =
 
 let getValve valveName = valveDefinitionsDict[valveName]
 
-let part1 =
+let part1 () =
     let allValveNames =
         optimizedValveDefinitions |> Seq.map (fun valve -> valve.name) |> Set
 
@@ -189,7 +189,7 @@ let part1 =
 
 
     let result = maxVal
-    result
+    result |> string
 
 type DoubleNode =
     { brokenOrOpenValves: string Set
@@ -199,7 +199,7 @@ type DoubleNode =
       elephantMinutesLeft: int
       elephantValveLabel: string }
 
-let part2 =
+let part2 () =
     let allValveNames =
         optimizedValveDefinitions |> Seq.map (fun valve -> valve.name) |> Set
 
@@ -386,50 +386,50 @@ let part2 =
                 |> Seq.sortDescending
                 |> Seq.chunkBySize 1
                 |> Seq.toList
-            
+
             let timer =
                 (min current.humanMinutesLeft current.elephantMinutesLeft)
                 |> Seq.unfold (fun state -> if state > 2 then Some(state, state - 2) else None)
-            
+
             let potential =
                 timer
                 |> Seq.zip closedUsefulValvesTotalFlow
                 |> Seq.map (fun (a, b) -> b * (a |> Seq.sum))
                 |> Seq.sum
-            
+
             if current.pressureReleased + potential < maxVal then
                 ()
             else
 
 
-            // let dequeuedEleph, nextEleph = elephantValves.TryDequeue()
-            //
-            // let filterElephValve (node: DoubleNode) =
-            //     if dequeuedEleph then
-            //         node.elephantValveLabel = fst nextEleph
-            //         && ((snd nextEleph) |> Option.isNone
-            //             || node.brokenOrOpenValves |> Set.contains (snd nextEleph).Value)
-            //     else
-            //         true
-            //
-            // let dequeuedHuman, nextHuman = humanValves.TryDequeue()
-            //
-            // let filterHumanValve (node: DoubleNode) =
-            //     if dequeuedHuman then
-            //         node.humanValveLabel = fst nextHuman
-            //         && ((snd nextHuman) |> Option.isNone
-            //             || node.brokenOrOpenValves |> Set.contains (snd nextHuman).Value)
-            //     else
-            //         true
-            //
-            //
-            // let filteredNeighbors =
-            //     neighbors
-            //     |> Seq.filter filterHumanValve
-            //     |> Seq.filter filterElephValve
-            //     |> Seq.toList
-            //
-            // index <- index + 1
+                // let dequeuedEleph, nextEleph = elephantValves.TryDequeue()
+                //
+                // let filterElephValve (node: DoubleNode) =
+                //     if dequeuedEleph then
+                //         node.elephantValveLabel = fst nextEleph
+                //         && ((snd nextEleph) |> Option.isNone
+                //             || node.brokenOrOpenValves |> Set.contains (snd nextEleph).Value)
+                //     else
+                //         true
+                //
+                // let dequeuedHuman, nextHuman = humanValves.TryDequeue()
+                //
+                // let filterHumanValve (node: DoubleNode) =
+                //     if dequeuedHuman then
+                //         node.humanValveLabel = fst nextHuman
+                //         && ((snd nextHuman) |> Option.isNone
+                //             || node.brokenOrOpenValves |> Set.contains (snd nextHuman).Value)
+                //     else
+                //         true
+                //
+                //
+                // let filteredNeighbors =
+                //     neighbors
+                //     |> Seq.filter filterHumanValve
+                //     |> Seq.filter filterElephValve
+                //     |> Seq.toList
+                //
+                // index <- index + 1
 
 
 
@@ -438,4 +438,4 @@ let part2 =
 
 
     let result = maxVal
-    result
+    result |> string

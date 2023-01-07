@@ -34,7 +34,7 @@ let multiply left right = binaryFunctionOnIntegers left right (*)
 let divisibilityTest divident divisor =
     (complexNumToInt divident) % divisor = 0UL
 
-let monkeys =
+let monkeys () =
     (Helpers.readInputFull 11).Split("\r\n\r\n")
     |> Seq.map (fun m ->
         let lines = m.Split("\r\n")
@@ -97,16 +97,13 @@ let solve roundCount afterInspectionFn =
         |> Seq.fold (fun (monkeys: Monkey list) -> advanceMonkey monkeys) monkeys
 
     Seq.init roundCount id
-    |> Seq.fold (fun monkeys roundNum -> advanceRound monkeys) monkeys
+    |> Seq.fold (fun monkeys roundNum -> advanceRound monkeys) (monkeys ())
     |> Seq.map (fun m -> m.InspectionCount)
     |> Seq.sortByDescending id
     |> Seq.take 2
     |> Seq.reduce (fun a b -> a * b)
 
-let part1 =
+let part1 () =
     solve 20 (fun x -> ((x |> complexNumToInt) / 3UL) |> intToComplexNum) |> string
 
-let part2 = solve 10000 id |> string
-
-Helpers.assertEqual "99840" part1
-Helpers.assertEqual "20683044837" part2
+let part2 () = solve 10000 id |> string

@@ -57,7 +57,7 @@ let initialState =
       Column = map[0] |> Seq.findIndex (fun c -> c = '.')
       Facing = Right }
 
-let part1 =
+let part1 () =
     let measureLine line =
         let min = line |> Seq.takeWhile (fun c -> c = ' ') |> Seq.length
 
@@ -138,7 +138,7 @@ let part1 =
 
     let finalState = instructions |> Seq.fold advanceInstruction initialState
     let result = password finalState
-    result
+    result |> string
 
 type Face =
     | Front
@@ -148,7 +148,7 @@ type Face =
     | Down
     | Back
 
-let part2 =
+let part2 () =
     let size = 50
 
     let faces =
@@ -303,4 +303,4 @@ let part2 =
 
     let finalState = instructions |> Seq.fold advanceInstruction initialState
     let result = password finalState
-    result
+    result |> string

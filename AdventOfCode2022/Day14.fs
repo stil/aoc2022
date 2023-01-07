@@ -90,7 +90,7 @@ let pourSand grid isEmptyFn stopPouringFn =
 
     not (stopPouringFn y)
 
-let part1 =
+let part1 () =
     let grid = grid ()
 
     let isEmpty (y, x) =
@@ -106,7 +106,7 @@ let part1 =
     result |> string
 
 
-let part2 =
+let part2 () =
     let grid = grid ()
     let floorY = maxY + 2
 
@@ -123,6 +123,3 @@ let part2 =
     // printGrid grid
 
     (result + 1) |> string
-
-Helpers.assertEqual "728" part1
-Helpers.assertEqual "27623" part2

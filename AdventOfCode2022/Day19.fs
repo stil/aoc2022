@@ -213,22 +213,21 @@ let computeMaxGeodesPerBlueprint blueprints timeLimit =
 
     result
 
-let part1 =
-    // let maxGeodesPerBlueprint = computeMaxGeodesPerBlueprint blueprints 24
-    //
-    // let qualityLevels =
-    //     maxGeodesPerBlueprint
-    //     |> Seq.map (fun (blueprint, maxGeodes) -> blueprint.Id * maxGeodes)
-    //
-    // let result = qualityLevels |> Seq.sum
-    // result
-    0
+let part1 () =
+    let maxGeodesPerBlueprint = computeMaxGeodesPerBlueprint blueprints 24
 
-let part2 =
+    let qualityLevels =
+        maxGeodesPerBlueprint
+        |> Seq.map (fun (blueprint, maxGeodes) -> blueprint.Id * maxGeodes)
+
+    let result = qualityLevels |> Seq.sum
+    result |> string
+
+let part2 () =
     let maxGeodesPerBlueprint =
         computeMaxGeodesPerBlueprint (blueprints |> List.take (min blueprints.Length 3)) 32
 
     let result =
         maxGeodesPerBlueprint |> Seq.map snd |> Seq.reduce (fun mg1 mg2 -> mg1 * mg2)
 
-    result
+    result |> string

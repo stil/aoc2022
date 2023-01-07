@@ -28,7 +28,7 @@ let filterDirs items =
         | Directory dir -> Some dir
         | _ -> None)
 
-let fileSystem =
+let fileSystem () =
     let cd destination (cwd: DirectoryInfo) =
         match destination with
         | ".." -> cwd.parent.Value
@@ -89,19 +89,23 @@ let rec descendants node =
 let totalSize node =
     descendants node |> filterFiles |> Seq.sumBy (fun file -> file.fileSize)
 
-let directorySizes =
+let directorySizes () =
+    let fileSystem = fileSystem ()
+
     descendants fileSystem
     |> filterDirs
     |> Seq.map (fun dir -> totalSize (Directory dir))
 
-let part1 =
-    directorySizes |> Seq.filter (fun size -> size <= 100000UL) |> Seq.sum |> string
+let part1 () =
+    directorySizes ()
+    |> Seq.filter (fun size -> size <= 100000UL)
+    |> Seq.sum
+    |> string
 
-let part2 =
-    directorySizes
+let part2 () =
+    let fileSystem = fileSystem ()
+
+    directorySizes ()
     |> Seq.sort
     |> Seq.find (fun size -> 70000000UL - (totalSize fileSystem) + size >= 30000000UL)
     |> string
-
-Helpers.assertEqual "2104783" part1
-Helpers.assertEqual "5883165" part2

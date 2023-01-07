@@ -52,12 +52,11 @@ let part1x () =
 
     let result = Set.difference prohibitedPositions beaconPositions |> Set.count
 
-    printfn $"Score %d{score}"
     result
 
-let part1 = part1x () |> string
+let part1 () = part1x () |> string
 
-let part2 =
+let part2 () =
     let range = 4000000
 
     let pointOpt, notDetected =

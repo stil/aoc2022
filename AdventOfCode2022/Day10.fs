@@ -4,7 +4,7 @@ type Instruction =
     | ADDX of int
     | NOOP
 
-let input =
+let input () =
     Helpers.readInput 10
     |> Seq.collect (fun line ->
         let parts = line.Split(' ')
@@ -25,10 +25,10 @@ let input =
             cycleList @ [ nextX ])
         [ 1 ]
 
-let part1 =
+let part1 () =
     let interestingCycles = [ 20..40..220 ] |> Set
 
-    input
+    input ()
     |> Seq.fold
         (fun (signalStrengthSum, cycles) xRegister ->
             let newCycles = cycles + 1
@@ -44,7 +44,7 @@ let part1 =
     |> fst
     |> string
 
-let part2 =
+let part2 () =
     let crt = Array2D.init 6 40 (fun _ _ -> '.')
 
     let nextCrtOffset (y, x) =
@@ -53,7 +53,7 @@ let part2 =
         let y = y % (Array2D.length1 crt)
         (y, x)
 
-    input
+    input ()
     |> Seq.fold
         (fun (crtY, crtX) xRegister ->
             if crtX >= (xRegister - 1) && crtX <= (xRegister + 1) then
@@ -70,7 +70,7 @@ let part2 =
             if x = Array2D.length2 crt - 1 then printfn "" else ())
 
     printCrt ()
+    
+    
 
     "PLPAFBCL" // Human OCR
-
-Helpers.assertEqual "12560" part1

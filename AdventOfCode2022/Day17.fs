@@ -301,8 +301,7 @@ let calculateHeight rockCount =
 
     result
 
-let part1 = calculateHeight 2022UL
-let part2 = calculateHeight 1000000000000UL
+let part1 () = calculateHeight 2022UL |> string
 
-Helpers.assertEqual 3114UL part1
-Helpers.assertEqual 1540804597682UL part2
+let part2 () =
+    calculateHeight 1000000000000UL |> string

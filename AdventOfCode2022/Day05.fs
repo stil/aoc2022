@@ -2,9 +2,10 @@ module Day05
 
 let split (delim: string) (str: string) = str.Split(delim)
 let remove (oldValue: string) (str: string) = str.Replace(oldValue, "")
-let input = Helpers.readInput 5
 
-let initialCrateStacks =
+let initialCrateStacks () =
+    let input = Helpers.readInput 5
+
     [ 1..9 ]
     |> List.map (fun col ->
         [ 1..8 ]
@@ -12,7 +13,7 @@ let initialCrateStacks =
         |> List.filter (fun c -> c <> ' '))
 
 let topCrates collectFn =
-    input
+    Helpers.readInput 5
     |> Seq.skipWhile (fun line -> line.Length > 0)
     |> Seq.skip 1
     |> Seq.map (remove "move " >> remove "from " >> remove "to " >> split " " >> Array.map int)
@@ -25,11 +26,11 @@ let topCrates collectFn =
                 (moveTo - 1)
                 (previousStacks[moveFrom - 1][0 .. (howMany - 1)] @ previousStacks[moveTo - 1])
             |> List.updateAt (moveFrom - 1) (previousStacks[moveFrom - 1][howMany..]))
-        initialCrateStacks
+        (initialCrateStacks ())
     |> Seq.map (Seq.head >> string)
     |> String.concat ""
 
-let part1 =
+let part1 () =
     topCrates (fun (howMany, moveFrom, moveTo) -> Seq.init howMany (fun _ -> (1, moveFrom, moveTo)))
 
-let part2 = topCrates (fun instr -> [ instr ])
+let part2 () = topCrates (fun instr -> [ instr ])

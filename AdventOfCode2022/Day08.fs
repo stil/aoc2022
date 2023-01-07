@@ -24,7 +24,7 @@ let walkRight = walkPath (0, 1)
 let walkUp = walkPath (-1, 0)
 let walkLeft = walkPath (0, -1)
 
-let part1 =
+let part1 () =
     let visibleTrees ray =
         ray
         |> Seq.fold
@@ -43,7 +43,7 @@ let part1 =
     let rays = [ down; up; right; left ] |> Seq.concat
     rays |> Seq.map visibleTrees |> Seq.collect id |> Set |> Set.count |> string
 
-let part2 =
+let part2 () =
     let viewingDistance treeHeight ray =
         ray
         |> Seq.fold
@@ -63,6 +63,3 @@ let part2 =
         |> Seq.reduce (*))
     |> Seq.max
     |> string
-
-Helpers.assertEqual "1763" part1
-Helpers.assertEqual "671160" part2

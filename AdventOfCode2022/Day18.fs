@@ -62,16 +62,16 @@ let isInBounds (x, y, z) =
     result
 
 
-let part1 =
+let part1 () =
     let result =
         input
         |> Seq.map (fun (x, y, z) -> sides |> Seq.map (getCubeOnSide (x, y, z)) |> Seq.filter isNotOccupied)
         |> Seq.sumBy (fun uncoveredSides -> uncoveredSides |> Seq.length)
 
-    result
+    result |> string
 
 
-let part2 =
+let part2 () =
     // For each cube inside the grid, check if its reachable from the outside.
 
     let neighborsFn node =
@@ -101,7 +101,7 @@ let part2 =
                     match pathFn (x, y, z) with
                     | None ->
                         Array3D.set grid x y z true
-                        printfn $"no path to (%d{x}, %d{y}, %d{z})"
+                        //printfn $"no path to (%d{x}, %d{y}, %d{z})"
                     | _ -> ())
 
         )
@@ -114,4 +114,4 @@ let part2 =
         |> Seq.sumBy (fun uncoveredSides -> uncoveredSides |> Seq.length)
 
 
-    result
+    result |> string

@@ -85,15 +85,12 @@ let findShortestPathLength start =
     | Some path -> Some(path.Length - 1)
     | None -> None
 
-let part1 =
+let part1 () =
     let start = filterPoints (fun c -> c = 'S') |> Seq.head
     findShortestPathLength start |> Option.get |> string
 
-let part2 =
+let part2 () =
     filterPoints (fun c -> charToElevation c = charToElevation 'a')
     |> Seq.choose findShortestPathLength
     |> Seq.min
     |> string
-
-Helpers.assertEqual "504" part1
-Helpers.assertEqual "500" part2

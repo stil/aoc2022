@@ -1,6 +1,6 @@
 module Day25
 
-let part1 =
+let part1 () =
     let snafuToDec snafu =
         snafu
         |> Seq.rev
@@ -42,7 +42,4 @@ let part1 =
 
     let result = decToSnafu resultDec
 
-    result
-
-
-let part2 = 0
+    result |> string

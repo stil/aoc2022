@@ -62,20 +62,20 @@ let sumScore rounds =
     |> Seq.map (fun (score, extraPoints) -> score + extraPoints)
     |> Seq.sum
 
-let input =
+let input () =
     (Helpers.readInput 2)
     |> Seq.map (fun e -> e.Replace(" ", ""))
     |> Seq.map (fun e -> (e[0], e[1]))
 
-let part1 =
-    input
+let part1 () =
+    input ()
     |> Seq.map (fun (opp, me) -> mapWeapon opp, mapWeapon me)
     |> sumScore
     |> string
 
 
-let part2 =
-    input
+let part2 () =
+    input ()
     |> Seq.map (fun (opp, me) -> mapWeapon opp, mapOutcome me)
     |> Seq.map (fun e -> (fst e, e ||> getWeaponForOutcome))
     |> sumScore

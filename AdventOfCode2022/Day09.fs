@@ -11,7 +11,7 @@ let stepFnIntoDirection dirChar =
     | 'D' -> add (-1, 0)
     | _ -> failwith "Unsupported direction."
 
-let input =
+let input () =
     Helpers.readInput 9
     |> Seq.collect (fun line -> (int line[2..], stepFnIntoDirection line[0]) ||> Seq.replicate)
 
@@ -40,7 +40,7 @@ let countUniqueVisitedByTail ropeLength =
     let rope = List.replicate ropeLength (0, 0)
 
     let finalRope, visitedByTail =
-        ((rope, []), input)
+        ((rope, []), input ())
         ||> Seq.fold (fun (rope, visited) stepFn ->
             let newRope = rope |> List.updateAt 0 (rope |> List.head |> stepFn) |> adjustRope
             let newRopeTail = newRope |> List.last
@@ -48,8 +48,5 @@ let countUniqueVisitedByTail ropeLength =
 
     visitedByTail |> Set |> Set.count
 
-let part1 = countUniqueVisitedByTail 2 |> string
-let part2 = countUniqueVisitedByTail 10 |> string
-
-Helpers.assertEqual "6026" part1
-Helpers.assertEqual "2273" part2
+let part1 () = countUniqueVisitedByTail 2 |> string
+let part2 () = countUniqueVisitedByTail 10 |> string

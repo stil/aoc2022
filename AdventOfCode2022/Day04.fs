@@ -8,20 +8,20 @@ let mapPair fn (a, b) = (fn a, fn b)
 let parsePair pair = parseTuple pair ',' id
 let parseRange range = parseTuple range '-' int
 
-let assignmentPairs =
+let assignmentPairs () =
     Helpers.readInput 4
     |> Seq.map parsePair
     |> Seq.map (mapPair parseRange)
     |> Seq.map (mapPair (fun (min, max) -> Set { min..max }))
 
-let part1 =
-    assignmentPairs
+let part1 () =
+    assignmentPairs ()
     |> Seq.filter (fun elfs -> elfs ||> Set.isSubset || elfs ||> Set.isSuperset)
     |> Seq.length
     |> string
 
-let part2 =
-    assignmentPairs
+let part2 () =
+    assignmentPairs ()
     |> Seq.filter (fun elfs -> elfs ||> Set.intersect |> Set.isEmpty |> not)
     |> Seq.length
     |> string

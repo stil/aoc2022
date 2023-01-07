@@ -22,7 +22,5 @@ type Result =
 exception InvalidResult of string
 
 let assertEqual expected actual =
-    if expected = actual then
-        printfn "Result correct."
-    else
+    if expected <> actual then
         raise (InvalidResult($"Invalid result. Expected '{expected}', got '{actual}'."))

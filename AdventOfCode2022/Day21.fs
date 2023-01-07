@@ -39,7 +39,7 @@ let monkeys =
 
 type Equation = { Left: Value; Right: Value }
 
-let part1 =
+let part1 () =
     let resolvePass monkeys =
         let actualNumbersDict =
             monkeys
@@ -100,9 +100,9 @@ let part1 =
         | ActualNumber result -> result
         | _ -> failwith "Could not solve."
 
-    result
+    result |> string
 
-let part2 =
+let part2 () =
     let monkeys =
         Helpers.readInput 21
         |> Seq.map (fun line ->
@@ -292,4 +292,4 @@ let part2 =
 
     let result = solve equationUnwrapped.Right
 
-    result
+    result |> string
