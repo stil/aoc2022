@@ -250,8 +250,7 @@ let part2 () =
                     else
                         actions
 
-
-                for (humanOpenAction, elephantOpenAction) in actionsFiltered do
+                for humanOpenAction, elephantOpenAction in actionsFiltered do
                     if humanOpenAction && elephantOpenAction then
                         yield
                             { node with
@@ -272,7 +271,7 @@ let part2 () =
                                 brokenOrOpenValves = node.brokenOrOpenValves |> Set.add node.humanValveLabel
                                 pressureReleased =
                                     node.pressureReleased + ((node.humanMinutesLeft - 1) * humanValve.flowRate) }
-                    elif not (humanOpenAction) && elephantOpenAction then
+                    elif not humanOpenAction && elephantOpenAction then
                         yield
                             { node with
                                 elephantMinutesLeft = node.elephantMinutesLeft - 1
@@ -280,8 +279,6 @@ let part2 () =
                                 pressureReleased =
                                     node.pressureReleased
                                     + ((node.elephantMinutesLeft - 1) * elephantValve.flowRate) }
-
-
 
                 for humanDest in
                     (if node.humanMinutesLeft > 0 then
@@ -309,12 +306,6 @@ let part2 () =
 
     let timeLimit = 26
 
-    let brokenValves =
-        optimizedValveDefinitions
-        |> Seq.filter (fun valve -> valve.flowRate = 0)
-        |> Seq.map (fun valve -> valve.name)
-        |> Set
-
     let startNode =
         { brokenOrOpenValves = Set.empty
           pressureReleased = 0
@@ -327,47 +318,6 @@ let part2 () =
     toVisit.Push(startNode)
     let mutable maxVal = 0
     let mutable goal = None
-
-    let mutable index = 0
-
-    let valveDefinitionsDict =
-        valveDefinitionsTangled |> Seq.map (fun vd -> (vd.name, vd)) |> dict
-
-    // let humanValves =
-    //     Queue<string * string option>(
-    //         [ ("AA", None)
-    //           ("II", None)
-    //           ("JJ", None)
-    //           ("JJ", Some "JJ")
-    //           ("II", None)
-    //           ("AA", None)
-    //           ("BB", None)
-    //           ("BB", Some "BB")
-    //           ("CC", None)
-    //           ("CC", Some "CC") ]
-    //         |> Seq.filter (fun (v, x) -> valveDefinitionsDict[v].flowRate > 0 || v = "AA")
-    //     )
-    //
-    // let elephantValves =
-    //     Queue<string * string option>(
-    //         [ ("AA", None)
-    //           ("DD", None)
-    //           ("DD", Some "DD")
-    //           ("EE", None)
-    //           ("FF", None)
-    //           ("GG", None)
-    //           ("HH", None)
-    //           ("HH", Some "HH")
-    //           ("GG", None)
-    //           ("FF", None)
-    //           ("EE", None)
-    //           ("EE", Some "EE") ]
-    //         |> Seq.filter (fun (v, x) -> valveDefinitionsDict[v].flowRate > 0 || v = "AA")
-    //     )
-
-    // let testHuman = humanValves.Dequeue()
-    // let testEleph = elephantValves.Dequeue()
-
 
     while toVisit.Count > 0 do
         let current = toVisit.Pop()
@@ -400,39 +350,6 @@ let part2 () =
             if current.pressureReleased + potential < maxVal then
                 ()
             else
-
-
-                // let dequeuedEleph, nextEleph = elephantValves.TryDequeue()
-                //
-                // let filterElephValve (node: DoubleNode) =
-                //     if dequeuedEleph then
-                //         node.elephantValveLabel = fst nextEleph
-                //         && ((snd nextEleph) |> Option.isNone
-                //             || node.brokenOrOpenValves |> Set.contains (snd nextEleph).Value)
-                //     else
-                //         true
-                //
-                // let dequeuedHuman, nextHuman = humanValves.TryDequeue()
-                //
-                // let filterHumanValve (node: DoubleNode) =
-                //     if dequeuedHuman then
-                //         node.humanValveLabel = fst nextHuman
-                //         && ((snd nextHuman) |> Option.isNone
-                //             || node.brokenOrOpenValves |> Set.contains (snd nextHuman).Value)
-                //     else
-                //         true
-                //
-                //
-                // let filteredNeighbors =
-                //     neighbors
-                //     |> Seq.filter filterHumanValve
-                //     |> Seq.filter filterElephValve
-                //     |> Seq.toList
-                //
-                // index <- index + 1
-
-
-
                 for next in neighbors do
                     toVisit.Push(next)
 

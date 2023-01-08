@@ -47,7 +47,7 @@ let allSolutions =
       (15, 2, Day15.part2, "10826395253551") // 11 s
 
       (16, 1, Day16.part1, "1880")
-      // (16, 2, Day16.part2, "2520") // Super slow.
+      (16, 2, Day16.part2, "2520") // 568 s ~ 9 min
 
       (17, 1, Day17.part1, "3114")
       (17, 2, Day17.part2, "1540804597682")
